@@ -15,7 +15,10 @@ pipeline {
 
         stage('Deploy Helm Chart to Cluster') {
             steps {
-                        sh 'aws eks update-kubeconfig --name siri-eks-cluster'
+                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-cred', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                            sh 'aws eks update-kubeconfig --name siri-eks-cluster'
+                        }
+                       
                         script {
                             if (params.Component == 'jenkins') {
                                 sh 'cd jenkins'
