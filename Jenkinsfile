@@ -5,10 +5,7 @@ properties([
 ])
 
 pipeline {
-    agent {
-        label 'cicd'
-    }
-
+    agent any
     stages {
         stage('Checkout Helm Chart Repo') {
             steps {
