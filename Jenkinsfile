@@ -12,8 +12,6 @@ pipeline {
     stages {
         stage('Checkout Helm Chart Repo') {
             steps {
-#                checkout([$class: 'GitSCM', branches: [[name: 'origin/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'pankaj210179-dev-git-creds', url: 'TBD']]])
-#                stash includes: '**/*', name: 'uc-iac-aws-tf-lz-eks'
                  git branch: 'main', url: 'https://ucgitdev.exlservice.com/pr-shireeshag/UCI_Helm_charts.git'
             }
         }
