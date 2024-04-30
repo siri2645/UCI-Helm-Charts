@@ -14,9 +14,7 @@ pipeline {
         }
 
         stage('Deploy Helm Chart to Cluster') {
-            steps { 
-                ansiColor('xterm') {
-                    withAWS(role: "arn:aws:iam::788150207190:role/EXLDevopsJenkinsCICDNodeCrossAccountRole", useNode: true) {
+            steps {
                         sh 'aws eks update-kubeconfig --name siri-eks-cluster'
                         // sh 'curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3'
                         // sh 'sh get-helm-3'
@@ -34,5 +32,4 @@ pipeline {
                 }
             }       
         }
-    }
-}
+
