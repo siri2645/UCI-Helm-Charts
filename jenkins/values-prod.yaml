@@ -36,13 +36,13 @@ controller:
     # -- Controller image registry
     registry: "docker.io"
     # -- Controller image repository
-    repository: "jenkins/jenkins"
+    repository: "lucky1225/jenkins"
 
     # -- Controller image tag override; i.e., tag: "2.440.1-jdk17"
-    tag:
+    tag: 4
 
     # -- Controller image tag label
-    tagLabel: jdk17
+    # tagLabel: jdk17
     # -- Controller image pull policy
     pullPolicy: "Always"
   # -- Controller image pull secret
