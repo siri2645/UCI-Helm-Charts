@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout Helm Chart Repo') {
             steps {
-                 git branch: 'main', url: 'https://github.com/siri2645/UCI-Helm-Charts.git'
+                 git branch: 'main', credentialsId: 'GitHub', url: 'https://github.com/siri2645/UCI-Helm-Charts.git'
             }
         }
 
