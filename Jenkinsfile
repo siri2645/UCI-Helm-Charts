@@ -22,15 +22,22 @@ pipeline {
                         script {
                             if (params.Component == 'jenkins') {
                                 sh '''
-                                   cd jenkins
-                                   install-jenkins.sh
+                                    cd jenkins
+                                    sh install-jenkins.sh
                                 '''
                             } else if (params.Component == 'ingress-nginx') {
                                 sh '''
+                                   ls
                                    cd ingress-nginx
+                                   ls
                                    sh install-ingress-nginx.sh
-                                '''   
-                            }
+                                ''' 
+                            } else if (params.Component == 'sonarqube') {
+                                sh '''
+                                    cd sonarqube
+                                    sh sonar-install.sh
+                                    '''
+                             }
                         }
                     }
                 }
