@@ -1,6 +1,6 @@
 properties([
     parameters([
-        choice(choices: ['jenkins', 'ingress-nginx'], name: 'Component')
+        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube'], name: 'Component')
     ])
 ])
 
