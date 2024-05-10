@@ -100,12 +100,12 @@ ingress-nginx:
   #   replicaCount: 3
 
 ingress:
-  enabled: false
+  enabled: true
   # Used to create an Ingress record.
   hosts:
     - name: sonarqube.your-org.com
       # Different clouds or configurations might need /* as the default path
-      # path: /
+      path: /
       # For additional control over serviceName and servicePort
       # serviceName: someService
       # servicePort: somePort
@@ -115,7 +115,7 @@ ingress:
   # kubernetes.io/tls-acme: "true"
 
   # Set the ingressClassName on the ingress record
-  # ingressClassName: nginx
+   ingressClassName: nginx
 
 # Additional labels for Ingress manifest file
   # labels:
