@@ -434,13 +434,13 @@ emptyDir: {}
 ## for external Databases
 jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
-  enable: false
+  enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://myPostgress/myDatabase?socketTimeout=1500"
+  jdbcUrl: "jdbc:postgresql://demo-postgress-instance-1.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
   # The DB user that should be used for the JDBC connection
-  jdbcUsername: "sonarUser"
+  jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
-  jdbcPassword: "sonarPass"
+  jdbcPassword: "*46w6V{2JncWlqrzE|PTT9xAc(HD"
   ## Alternatively, use a pre-existing k8s secret containing the DB password
   # jdbcSecretName: "sonarqube-jdbc"
   ## and the secretValueKey of the password found within that secret
@@ -450,7 +450,7 @@ jdbcOverwrite:
 ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
 postgresql:
   # Enable to deploy the bitnami PostgreSQL chart
-  enabled: true
+  enabled: false
   ## postgresql Chart global settings
   # global:
   #   imageRegistry: ''
@@ -589,4 +589,3 @@ extraConfig:
 #   sonarWebContext: /
 
 terminationGracePeriodSeconds: 60
-
