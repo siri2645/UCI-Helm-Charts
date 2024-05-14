@@ -384,7 +384,7 @@ resources:
     ephemeral-storage: 1536M
 
 persistence:
-  enabled: false
+  enabled: true
   ## Set annotations on pvc
   annotations: {}
 
@@ -400,7 +400,7 @@ persistence:
   ##
   storageClass:
   accessMode: ReadWriteOnce
-  size: 5Gi
+  size: 20Gi
   uid: 1000
   guid: 0
 
