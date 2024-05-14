@@ -436,11 +436,11 @@ jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://demo-postgress-instance-1.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
+  jdbcUrl: "jdbc:postgresql://database-1.cpgqo0i8x1tp.eu-central-1.rds.amazonaws.com:5432/sampleDB"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
-  jdbcPassword: "*46w6V{2JncWlqrzE|PTT9xAc(HD"
+  jdbcPassword: "A2<u$b-|EO4-r*N6U5sr+t5Dvdsu"
   ## Alternatively, use a pre-existing k8s secret containing the DB password
   # jdbcSecretName: "sonarqube-jdbc"
   ## and the secretValueKey of the password found within that secret
