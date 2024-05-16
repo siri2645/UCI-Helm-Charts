@@ -245,7 +245,7 @@ caCerts:
   secret: your-secret
 
 initSysctl:
-  enabled: true
+  enabled: false
   vmMaxMapCount: 524288
   fsFileMax: 131072
   nofile: 131072
@@ -260,7 +260,7 @@ initSysctl:
 
 # This should not be required anymore, used to chown/chmod folder created by faulty CSI driver that are not applying properly POSIX fsgroup.
 initFs:
-  enabled: true
+  enabled: false
   # Image: busybox:1.36
   # Compatible with podSecurity standard baseline.
   securityContext:
@@ -384,7 +384,7 @@ resources:
     ephemeral-storage: 1536M
 
 persistence:
-  enabled: false
+  enabled: true
   ## Set annotations on pvc
   annotations: {}
 
@@ -400,7 +400,7 @@ persistence:
   ##
   storageClass:
   accessMode: ReadWriteOnce
-  size: 5Gi
+  size: 20Gi
   uid: 1000
   guid: 0
 
@@ -440,11 +440,11 @@ jdbcOverwrite:
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
-  jdbcPassword: "A2<u$b-|EO4-r*N6U5sr+t5Dvdsu"
+  #jdbcPassword: ""
   ## Alternatively, use a pre-existing k8s secret containing the DB password
-  # jdbcSecretName: "sonarqube-jdbc"
+  jdbcSecretName: "sonarqube-sonarqube"
   ## and the secretValueKey of the password found within that secret
-  # jdbcSecretPasswordKey: "jdbc-password"
+  jdbcSecretPasswordKey: "jdbc-password"
 
 ## (DEPRECATED) Configuration values for postgresql dependency
 ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md

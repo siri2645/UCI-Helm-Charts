@@ -36,10 +36,10 @@ controller:
     # -- Controller image registry
     registry: "docker.io"
     # -- Controller image repository
-    repository: "lucky1225/jenkins"
+    repository: "jenkins/jenkins"
 
     # -- Controller image tag override; i.e., tag: "2.440.1-jdk17"
-    tag: 4
+    tag: jdk17
 
     # -- Controller image tag label
     # tagLabel: jdk17
@@ -687,7 +687,7 @@ controller:
 
     # configures the hostname e.g. jenkins.example.com
     # -- Ingress hostname
-    hostName: uc2jenkins.exlservice.com
+    hostName: jenkins.siri.com
     # -- Hostname to serve assets from
     resourceRootUrl:
     # -- Ingress TLS configuration
@@ -906,9 +906,9 @@ agent:
   jnlpregistry:
   image:
     # -- Repository to pull the agent jnlp image from
-    repository: "jenkins/inbound-agent"
+    repository: "lucky1225/jenkins-agent"
     # -- Tag of the image to pull
-    tag: "3206.vb_15dcf73f6a_9-3"
+    tag: "1"
   # -- Configure working directory for default agent
   workingDir: "/home/jenkins/agent"
   nodeUsageMode: "NORMAL"
@@ -1059,7 +1059,7 @@ agent:
   # -- Max number of agents to launch
   containerCap: 10
   # -- Agent Pod base name
-  podName: "default"
+  podName: "Jenkins-agent-auto-pipeline"
 
   # -- Allows the Pod to remain active for reuse until the configured number of minutes has passed since the last step was executed on it
   idleMinutes: 0
@@ -1201,7 +1201,7 @@ persistence:
   # -- The PVC access mode
   accessMode: "ReadWriteOnce"
   # -- The size of the PVC
-  size: "8Gi"
+  size: "50Gi"
 
   # ref: https://kubernetes.io/docs/concepts/storage/volume-pvc-datasource/
   # -- Existing data source to clone PVC from
