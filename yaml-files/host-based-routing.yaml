@@ -4,6 +4,7 @@ metadata:
   annotations:
     meta.helm.sh/release-name: jenkins
     meta.helm.sh/release-namespace: jenkins
+    nginx.ingress.kubernetes.io/rewrite-target: /
   creationTimestamp: "2024-05-04T12:04:46Z"
   generation: 3
   labels:
@@ -12,8 +13,6 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: jenkins
     helm.sh/chart: jenkins-5.1.8
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
   name: jenkins
   namespace: jenkins
   resourceVersion: "1130716"
