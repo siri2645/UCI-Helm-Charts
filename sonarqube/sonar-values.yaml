@@ -103,7 +103,7 @@ ingress:
   enabled: true
   # Used to create an Ingress record.
   hosts:
-    - name: sonarqube.siri.com
+    - name: ucsonarqube.exlservice.com
       # Different clouds or configurations might need /* as the default path
       path: /
       # For additional control over serviceName and servicePort
@@ -436,7 +436,7 @@ jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://demo-postgress-instance-1.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
+  jdbcUrl: "jdbc:postgresql://database-1.cpgqo0i8x1tp.eu-central-1.rds.amazonaws.com:5432/sampleDB"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file

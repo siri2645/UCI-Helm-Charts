@@ -538,7 +538,7 @@ controller:
       # -- Type of the internal controller service.
       # Defaults to the value of `controller.service.type`.
       # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-      type: ""
+      type: LoadBalancer
       # -- Pre-defined cluster internal IP address of the internal controller service. Take care of collisions with existing services.
       # This value is immutable. Set once, it can not be changed without deleting and re-creating the service.
       # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#choosing-your-own-ip-address
