@@ -5,6 +5,8 @@
 # If the deployment Type is set to Deployment sonarqube is deployed as a replica set.
 deploymentType: "StatefulSet"
 
+fullnameOverride: "sonarqube"
+
 # There should not be more than 1 sonarqube instance connected to the same database. Please set this value to 1 or 0 (in case you need to scale down programmatically).
 replicaCount: 1
 
@@ -103,9 +105,9 @@ ingress:
   enabled: true
   # Used to create an Ingress record.
   hosts:
-    - name: ucsonarqube.exlservice.com
+    - name: application.lucky.com
       # Different clouds or configurations might need /* as the default path
-      path: /
+      path: /sonar
       # For additional control over serviceName and servicePort
       # serviceName: someService
       # servicePort: somePort
@@ -359,17 +361,22 @@ monitoringPasscode: "define_it"
 
 ## Environment variables to attach to the pods
 ##
-# env:
+env:
 #   # If you use a different ingress path from /, you have to add it here as the value of SONAR_WEB_CONTEXT
-#   - name: SONAR_WEB_CONTEXT
-#     value: /sonarqube
+  - name: SONAR_WEB_CONTEXT
+    value: /sonar
 #   - name: VARIABLE
 #     value: my-value
+  - name: RDS_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: jdbc-password
+        key: rds-secret-volume
 
 # Set annotations for pods
 annotations: {}
 
-## We usually don't make specific resource recommendations, as they are heavily dependend on
+## We usually don't make specific resource recommendations, s they are heavily dependend on
 ## the usage of SonarQube and the surrounding infrastructure.
 ## Those default are based on the default Web -Xmx1G -Xms128m and CE -Xmx2G -Xms128m and Search -Xmx2G -Xms2G settings of SQ sub processes
 ## Adjust these values to your needs, you can find more details on the main README of the chart.
@@ -436,17 +443,18 @@ jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://database-1.cpgqo0i8x1tp.eu-central-1.rds.amazonaws.com:5432/sampleDB"
+  jdbcUrl: "jdbc:postgresql://demo-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
   #jdbcPassword: ""
   ## Alternatively, use a pre-existing k8s secret containing the DB password
-  jdbcSecretName: "sonarqube-sonarqube"
+  #jdbcSecretName: "sonarqube-secret"
   ## and the secretValueKey of the password found within that secret
-  jdbcSecretPasswordKey: "jdbc-password"
+  #jdbcSecretPasswordKey: "jdbc-password"
 
 ## (DEPRECATED) Configuration values for postgresql dependency
+
 ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
 postgresql:
   # Enable to deploy the bitnami PostgreSQL chart
@@ -538,24 +546,25 @@ tests:
 
 # For OpenShift set create=true to ensure service account is created.
 serviceAccount:
-  create: false
-  # name:
+  create: true
+  name: sonarqube-sa
   # automountToken: false # default
   ## Annotations for the Service Account
-  annotations: {}
+  annotations: 
+    eks.amazonaws.com/role-arn: arn:aws:iam::788150207190:role/MyWebIdentityRole
 
 # extraConfig is used to load Environment Variables from Secrets and ConfigMaps
 # which may have been written by other tools, such as external orchestrators.
 #
 # These Secrets/ConfigMaps are expected to contain Key/Value pairs, such as:
 #
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: external-sonarqube-opts
-# data:
-#   SONARQUBE_JDBC_USERNAME: foo
-#   SONARQUBE_JDBC_URL: jdbc:postgresql://db.example.com:5432/sonar
+  # apiVersion: v1
+  # kind: ConfigMap
+  # metadata:
+  #   name: external-sonarqube-opts
+  # data:
+  #   SONARQUBE_JDBC_USERNAME: postgres
+  #   SONARQUBE_JDBC_URL: jdbc:postgresql://demo-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB
 #
 # These vars can then be injected into the environment by uncommenting the following:
 #
@@ -589,3 +598,11 @@ extraConfig:
 #   sonarWebContext: /
 
 terminationGracePeriodSeconds: 60
+
+extraVolumes: 
+  - name: rds-secret-volume
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: rds-secrets
