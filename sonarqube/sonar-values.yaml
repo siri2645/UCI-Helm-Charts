@@ -367,11 +367,17 @@ env:
 #   value: /sonar
 # - name: VARIABLE
 #   value: my-value
-  # - name: RDS_SECRET
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: jdbc-password
-  #       key: rds-secret-volume
+  - name: rds_username
+    valueFrom:
+      secretKeyRef: 
+        name: eks-secret
+        key: username
+  
+  - name: rds_password
+    valueFrom:
+      secretKeyRef: 
+        name: eks-secret
+        key: password 
 
 # Set annotations for pods
 annotations: {}
@@ -443,7 +449,7 @@ jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://lucky-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
+  jdbcUrl: "jdbc:postgresql://lucky-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/luckyDB"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file

@@ -64,7 +64,8 @@ create_iam_resources() {
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "$OIDC_PROVIDER_ARN:sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
+          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):aud": "sts.amazonaws.com",
+          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
         }
       }
     }
