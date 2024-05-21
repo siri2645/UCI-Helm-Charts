@@ -37,7 +37,7 @@ kind: Ingress
 metadata:
   annotations:
     meta.helm.sh/release-name: sonarqube
-    meta.helm.sh/release-namespace: sonarqube
+    meta.helm.sh/release-namespace: sonar
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
   labels:
@@ -46,19 +46,19 @@ metadata:
     chart: sonarqube-10.5.1_2816
     heritage: Helm
     release: sonarqube
-  name: sonarqube-sonarqube
-  namespace: sonarqube
+  name: sonarqube
+  namespace: sonar
 spec:
   ingressClassName: nginx
   rules:
   - host: lucky.application.com
     http:
       paths:
-      - path: /sonar
+      - path: /sonar/(.*)
         pathType: Prefix
         backend:
           service:
-            name: sonarqube-sonarqube
+            name: sonarqube
             port:
               number: 9000
         

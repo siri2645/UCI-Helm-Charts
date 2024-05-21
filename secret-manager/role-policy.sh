@@ -2,15 +2,15 @@
 
 # Variables
 ACCOUNT_NUMBER="788150207190"
-CLUSTER_NAME="lucky-eks-cluster-alb"
-ROLE_NAME="AWS-SECRET-CSI-STORE-role"
+CLUSTER_NAME="lucky-eks-cluster"
+ROLE_NAME="AWS-SECRET-CSI-STORE-ROLE"
 OIDC_AUDIENCE="sts.amazonaws.com"
 POLICY_NAME="secret-store-policy"
 POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
 SERVICE_ACCOUNT_NAMESPACE="sonarqube"
 SERVICE_ACCOUNT_NAME="sonarqube-sa"
 REGION="us-west-2"
-RDS_SECRET_NAME="rds!db-5cb3e94a-11de-4da6-8890-c3e35e7145b2"
+RDS_SECRET_NAME="rds!db-f5244589-c961-4fa7-b0e5-7459fd8d2929"
 
 # Check if the role already exists
 ROLE_EXISTS=$(aws iam get-role --role-name $ROLE_NAME 2>/dev/null)
@@ -29,7 +29,6 @@ if [ $? -eq 0 ]; then
 
     if [ $? -eq 0 ]; then
       echo "Policy $POLICY_NAME attached to IAM role $ROLE_NAME."
-      exit 0
     else
       echo "Error: Unable to attach policy to IAM role."
       exit 1
@@ -65,7 +64,7 @@ TRUST_POLICY=$(cat <<EOF
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
+          "$OIDC_PROVIDER_ARN:sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
         }
       }
     }
@@ -85,19 +84,22 @@ fi
 # Fetch the secret ARN
 SECRET_ARN=$(aws secretsmanager list-secrets --query "SecretList[?Name=='$RDS_SECRET_NAME'].ARN" --output text)
 
-echo "$SECRET_ARN"
+echo "RDS-Secret-Arn: $SECRET_ARN"
 
 # Policy Document
 POLICY_DOCUMENT=$(cat <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "secretsmanager:GetSecretValue",
-            "Resource": "$SECRET_ARN"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": ["'${SECRET_ARN}'"]
+    }
+  ]
 }
 EOF
 )
@@ -126,3 +128,23 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Successfully created IAM role $ROLE_NAME and attached policy $POLICY_NAME."
+
+# Check if the service account already exists
+kubectl get sa $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE > /dev/null 2>&1
+
+if [ $? -eq 0 ]; then
+  echo "Service account $SERVICE_ACCOUNT_NAME already exists in namespace $SERVICE_ACCOUNT_NAMESPACE."
+else
+  # Create the Kubernetes service account with the IAM role annotation
+  kubectl create serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE
+  if [ $? -eq 0 ]; then
+    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME
+    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE meta.helm.sh/release-name=sonarqube
+    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE meta.helm.sh/release-namespace=sonarqube
+    kubectl label serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE app.kubernetes.io/managed-by=Helm
+    echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
+  else
+    echo "Unable to create Service Account with $ROLE_NAME"
+  fi
+fi
+

@@ -105,9 +105,9 @@ ingress:
   enabled: true
   # Used to create an Ingress record.
   hosts:
-    - name: application.lucky.com
+    - name: lucky.application.com
       # Different clouds or configurations might need /* as the default path
-      path: /
+      path: /sonar
       # For additional control over serviceName and servicePort
       # serviceName: someService
       # servicePort: somePort
@@ -361,17 +361,12 @@ monitoringPasscode: "define_it"
 
 ## Environment variables to attach to the pods
 ##
-env:
+# env:
 #   # If you use a different ingress path from /, you have to add it here as the value of SONAR_WEB_CONTEXT
-# - name: SONAR_WEB_CONTEXT
-#   value: /sonar
-# - name: VARIABLE
-#   value: my-value
-  # - name: RDS_SECRET
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: jdbc-password
-  #       key: rds-secret-volume
+#   - name: SONAR_WEB_CONTEXT
+#     value: /sonarqube
+#   - name: VARIABLE
+#     value: my-value
 
 # Set annotations for pods
 annotations: {}
@@ -443,18 +438,17 @@ jdbcOverwrite:
   # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enable: true
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://lucky-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
+  jdbcUrl: "jdbc:postgresql://demo-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "postgres"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
-  jdbcPassword: "i#Q*UNBp6X9)wzSH4dLp.b6:8xhN"
+  #jdbcPassword: ""
   ## Alternatively, use a pre-existing k8s secret containing the DB password
-  #jdbcSecretName: "sonarqube-secret"
+  jdbcSecretName: "sonarqube-secret"
   ## and the secretValueKey of the password found within that secret
-  #jdbcSecretPasswordKey: "jdbc-password"
+  jdbcSecretPasswordKey: "jdbc-password"
 
 ## (DEPRECATED) Configuration values for postgresql dependency
-
 ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
 postgresql:
   # Enable to deploy the bitnami PostgreSQL chart
@@ -546,25 +540,24 @@ tests:
 
 # For OpenShift set create=true to ensure service account is created.
 serviceAccount:
-  create: true
-  name: sonarqube-sa
+  create: false
+  # name:
   # automountToken: false # default
   ## Annotations for the Service Account
   annotations: {}
-    #eks.amazonaws.com/role-arn: arn:aws:iam::788150207190:role/MyWebIdentityRole
 
 # extraConfig is used to load Environment Variables from Secrets and ConfigMaps
 # which may have been written by other tools, such as external orchestrators.
 #
 # These Secrets/ConfigMaps are expected to contain Key/Value pairs, such as:
 #
-  # apiVersion: v1
-  # kind: ConfigMap
-  # metadata:
-  #   name: external-sonarqube-opts
-  # data:
-  #   SONARQUBE_JDBC_USERNAME: postgres
-  #   SONARQUBE_JDBC_URL: jdbc:postgresql://demo-database.cvq0mkwqe8mw.us-west-2.rds.amazonaws.com:5432/sampleDB
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: external-sonarqube-opts
+# data:
+#   SONARQUBE_JDBC_USERNAME: foo
+#   SONARQUBE_JDBC_URL: jdbc:postgresql://db.example.com:5432/sonar
 #
 # These vars can then be injected into the environment by uncommenting the following:
 #
@@ -598,11 +591,3 @@ extraConfig:
 #   sonarWebContext: /
 
 terminationGracePeriodSeconds: 60
-
-# extraVolumes: 
-#   - name: rds-secret-volume
-#     csi:
-#       driver: secrets-store.csi.k8s.io
-#       readOnly: true
-#       volumeAttributes:
-#         secretProviderClass: rds-secrets
