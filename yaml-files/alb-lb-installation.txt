@@ -1,0 +1,31 @@
+steps:
+
+1. Install aws-credentials, if our vpn and vpc are not in same zone
+2. Install aws-ebs-drivers to get pvc bounds
+3. install ingress-nginx if LB is NLB, just keeping annotation as NLB
+
+        install ALB ingress Load Balancer
+        1. Install SA, clusterrole, clusterolebinding (kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/master/docs/examples/rbac-role.yaml)
+        2. Create IAM OIDC provider
+        3. Create IAM policy for the AWS ALB Load Balancer Controller
+        4. Now Create a role with webIdentity and add trust relationships like below
+               choose webIdentity
+               Choose Identity Provide (as point one 2 steps back)
+               choose auidence as sts.amazonaws.com, Next
+               choose policy what we created previously
+               Provide role name
+               create role
+               again goto created role
+               click on trust relationships
+               edit trust relationships
+               replace aud with sub
+               replace sts.amazonaws.com with system:serviceaccount:kube-system:alb-ingress-controller
+                                            kube-system -> is namespace
+                                            alb-ingress-controller -> is a serviceaccount name under kube-system
+               After Editing above 2 steps, update policy
+               copy the ARN of the role
+               In service Account manifest file update with that ARN and deploy in kube-system
+
+        5. helm repo add awsalb https://cloudnativeapp.github.io/charts/curated/
+        6. helm repo update
+        7. helm upgrade --install aws-alb-ingress-controller awsalb/aws-alb-ingress-controller --set clusterName=lucky-eks-cluster-alb --set awsVpcID=vpc-00f35aa09788e2f30 --set awsRegion=us-west-2 -n kube-system

@@ -170,7 +170,7 @@ controller:
   # If you set this prefix and use ingress controller, then you might want to set the ingress path below
   # I.e., "/jenkins"
   # -- Root URI Jenkins will be served on
-  jenkinsUriPrefix:
+  jenkinsUriPrefix: /jenkins
 
   # -- Enable pod security context (must be `true` if podSecurityContextOverride, runAsUser or fsGroup are set)
   usePodSecurityContext: true
@@ -683,11 +683,11 @@ controller:
 
     # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
     # -- Ingress path
-    path: /
+    path: /jenkins
 
     # configures the hostname e.g. jenkins.example.com
     # -- Ingress hostname
-    hostName: jenkins.siri.com
+    hostName: application.lucky.com
     # -- Hostname to serve assets from
     resourceRootUrl:
     # -- Ingress TLS configuration
@@ -1201,7 +1201,7 @@ persistence:
   # -- The PVC access mode
   accessMode: "ReadWriteOnce"
   # -- The size of the PVC
-  size: "50Gi"
+  size: "25Gi"
 
   # ref: https://kubernetes.io/docs/concepts/storage/volume-pvc-datasource/
   # -- Existing data source to clone PVC from
