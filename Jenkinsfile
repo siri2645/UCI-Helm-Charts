@@ -1,6 +1,6 @@
 properties([
     parameters([
-        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube'], name: 'Component')
+        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube', 'external-secrets'], name: 'Component')
     ])
 ])
 
@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Helm Chart to Cluster') {
+        stage('Deploy Helm Charts to Cluster') {
             steps {
                      // Configure AWS credentials
                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'my-aws-credentials-id', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
@@ -37,6 +37,11 @@ pipeline {
                                     cd sonarqube
                                     sh sonar-install.sh
                                     '''
+                             } else if (params.Component == 'external-secrets') {
+                                sh '''
+                                   cd External-Secrets
+                                   sh secret-manager.sh
+                                   '''
                              }
                         }
                     }
