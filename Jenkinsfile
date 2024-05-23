@@ -36,13 +36,10 @@ pipeline {
                                 sh '''
                                     cd sonarqube
                                     sh sonar-install.sh
+                                    cd ../External-Secrets
+                                    sh secret-manager.sh
                                     '''
-                             } else if (params.Component == 'external-secrets') {
-                                sh '''
-                                   cd External-Secrets
-                                   sh secret-manager.sh
-                                   '''
-                             }
+                             } 
                         }
                     }
                 }
