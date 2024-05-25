@@ -22,17 +22,17 @@ pipeline {
                         script {
                             if (params.Component == 'ingress-nginx') {
                                 sh '''
-                                    cd ingress-nginx
+                                    cd helm-uninstall-script
                                     sh uninstall-ingress-nginx.sh
                                 '''
                             } else if (params.Component == 'jenkins') {
                                 sh '''
-                                   cd jenkins
+                                   cd helm-uninstall-script
                                    sh uninstall-jenkins.sh
                                 ''' 
                             } else if (params.Component == 'sonarqube') {
                                 sh '''
-                                    cd sonarqube
+                                    cd helm-uninstall-script
                                     sh uninstall-sonarqube.sh
                                     '''
                              }
