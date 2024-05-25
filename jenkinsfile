@@ -1,6 +1,6 @@
 properties([
     parameters([
-        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube', 'external-secrets'], name: 'Component')
+        choice(choices: ['ingress-nginx', 'jenkins', 'sonarqube'], name: 'Component')
     ])
 ])
 
@@ -20,28 +20,23 @@ pipeline {
                             sh '/usr/local/bin/aws eks update-kubeconfig --name lucky-eks-cluster'
                        
                         script {
-                            if (params.Component == 'jenkins') {
+                            if (params.Component == 'ingress-nginx') {
                                 sh '''
-                                    cd jenkins
-                                    sh install-jenkins.sh
+                                    cd ingress-nginx
+                                    sh uninstall-ingress-nginx.sh
                                 '''
-                            } else if (params.Component == 'ingress-nginx') {
+                            } else if (params.Component == 'jenkins') {
                                 sh '''
                                    ls
                                    cd ingress-nginx
                                    ls
-                                   sh install-ingress-nginx.sh
+                                   sh uninstall-jenkins.sh
                                 ''' 
                             } else if (params.Component == 'sonarqube') {
                                 sh '''
                                     cd sonarqube
-                                    sh sonar-install.sh
+                                    sh uninstall-sonarqube.sh
                                     '''
-                             } else if (params.Component == 'external-secrets') {
-                                sh '''
-                                   cd External-Secrets
-                                   sh secret-manager.sh
-                                   '''
                              }
                         }
                     }
