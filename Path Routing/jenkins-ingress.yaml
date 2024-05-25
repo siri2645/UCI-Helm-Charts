@@ -1,0 +1,28 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"kubernetes.io/ingress.class":"nginx"},"name":"jenkins-ingress","namespace":"jenkins"},"spec":{"ingressClassName":"nginx","rules":[{"host":"uc.exlservice.com","http":{"paths":[{"backend":{"service":{"name":"jenkins","port":{"number":8080}}},"path":"/jenkins","pathType":"Prefix"}]}}]}}
+      kubernetes.io/ingress.class: nginx
+    creationTimestamp: "2024-05-23T10:11:22Z"
+    generation: 1
+    name: jenkins-ingress
+    namespace: jenkins
+    resourceVersion: "2487391"
+    uid: 85560e79-df0e-469a-bbe5-ef95d4ee7b30
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: uc.exlservice.com
+      http:
+        paths:
+        - backend:
+            service:
+              name: jenkins
+              port:
+                number: 8080
+          path: /jenkins
+          pathType: Prefix

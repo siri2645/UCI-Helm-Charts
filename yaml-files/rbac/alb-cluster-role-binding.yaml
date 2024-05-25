@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"alb-ingress-controller"},"name":"alb-ingress-controller"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"alb-ingress-controller"},"subjects":[{"kind":"ServiceAccount","name":"alb-ingress-controller","namespace":"kube-system"}]}
+  creationTimestamp: "2024-05-19T23:01:31Z"
+  labels:
+    app.kubernetes.io/name: alb-ingress-controller
+  name: alb-ingress-controller
+  resourceVersion: "4963"
+  uid: ac65b7ef-d4e1-4104-ad74-4408b18322d1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alb-ingress-controller
+subjects:
+- kind: ServiceAccount
+  name: alb-ingress-controller
+  namespace: kube-system
