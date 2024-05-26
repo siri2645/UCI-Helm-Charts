@@ -98,7 +98,10 @@ EOF
         "secretsmanager:DescribeSecret",
         "secretsmanager:GetSecretValue"
       ],
-      "Resource": ["$SECRET_ARN"]
+      "Resource": [
+       "$SECRET_ARN",
+       arn:aws:iam::aws:policy/SecretsManagerReadWrite 
+       ]
     }
   ]
 }

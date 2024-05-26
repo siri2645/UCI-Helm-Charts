@@ -1,6 +1,6 @@
 properties([
     parameters([
-        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube', 'external-secrets'], name: 'Component')
+        choice(choices: ['jenkins', 'ingress-nginx', 'sonarqube'], name: 'Component')
     ])
 ])
 
@@ -27,22 +27,17 @@ pipeline {
                                 '''
                             } else if (params.Component == 'ingress-nginx') {
                                 sh '''
-                                   ls
                                    cd ingress-nginx
-                                   ls
                                    sh install-ingress-nginx.sh
                                 ''' 
                             } else if (params.Component == 'sonarqube') {
                                 sh '''
                                     cd sonarqube
                                     sh sonar-install.sh
+                                    cd ../External-Secrets
+                                    sh secret-manager.sh
                                     '''
-                             } else if (params.Component == 'external-secrets') {
-                                sh '''
-                                   cd External-Secrets
-                                   sh secret-manager.sh
-                                   '''
-                             }
+                             } 
                         }
                     }
                 }
