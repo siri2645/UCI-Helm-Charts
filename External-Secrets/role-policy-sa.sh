@@ -99,8 +99,7 @@ EOF
         "secretsmanager:GetSecretValue"
       ],
       "Resource": [
-       "$SECRET_ARN",
-       arn:aws:iam::aws:policy/SecretsManagerReadWrite 
+       "$SECRET_ARN"
        ]
     }
   ]
@@ -125,6 +124,7 @@ EOF
 
     # Attach the policy to the role
     aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn $POLICY_ARN
+    aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
 
     if [ $? -ne 0 ]; then
       echo "Error: Unable to attach policy to IAM role."
