@@ -4,7 +4,6 @@ metadata:
   annotations:
     meta.helm.sh/release-name: jenkins
     meta.helm.sh/release-namespace: jenkins
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
   labels:
@@ -21,7 +20,7 @@ spec:
   - host: lucky.application.com
     http:
       paths:
-      - path: /jenkins/(.*)
+      - path: /jenkins
         pathType: Prefix
         backend:
           service:
@@ -38,7 +37,6 @@ metadata:
   annotations:
     meta.helm.sh/release-name: sonarqube
     meta.helm.sh/release-namespace: sonarqube
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
   labels:
@@ -55,7 +53,7 @@ spec:
   - host: lucky.application.com
     http:
       paths:
-      - path: /sonarqube/(.*)
+      - path: /sonarqube
         pathType: Prefix
         backend:
           service:
