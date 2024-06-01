@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-ACCOUNT_NUMBER="788150207190"
+ACCOUNT_NUMBER="471112801649"
 CLUSTER_NAME="lucky-eks-cluster"
 ROLE_NAME="AWS-SECRET-CSI-STORE-ROLE"
 OIDC_AUDIENCE="sts.amazonaws.com"
@@ -10,7 +10,7 @@ POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
 SERVICE_ACCOUNT_NAMESPACE="sonarqube"
 SERVICE_ACCOUNT_NAME="sonarqube-sa"
 REGION="us-west-2"
-RDS_SECRET_NAME="rds!db-f5244589-c961-4fa7-b0e5-7459fd8d2929"
+RDS_SECRET_NAME="rds!db-64d0f348-5422-41bc-a7e2-eb15fd4c736e"
 
 create_iam_resources() {
   # Check if the role already exists
@@ -109,6 +109,8 @@ EOF
 
     # Create the IAM policy
     aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
+    
+    
 
     if [ $? -ne 0 ]; then
       echo "Error: Unable to create IAM policy."
