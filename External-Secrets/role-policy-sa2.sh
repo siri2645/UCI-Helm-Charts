@@ -20,21 +20,61 @@ create_iam_resources() {
     echo "IAM role $ROLE_NAME already exists."
 
     # Check if the policy already exists
-    POLICY_EXISTS=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME 2>/dev/null)
+    POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
+    
+    if [ -n "$POLICY_ARN" ]; then
+      echo "IAM policy $POLICY_NAME already exists with ARN $POLICY_ARN."
+    else
+      # Fetch the secret ARN
+      SECRET_ARN=$(aws secretsmanager list-secrets --query "SecretList[?Name=='$RDS_SECRET_NAME'].ARN" --output text)
+      echo "RDS-Secret-Arn: $SECRET_ARN"
 
-    if [ $? -eq 0 ]; then
-      echo "IAM policy $POLICY_NAME already exists."
+      # Policy Document
+      POLICY_DOCUMENT=$(cat <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+       "$SECRET_ARN",
+       "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+       ]
+    }
+  ]
+}
+EOF
+      )
+
+      # Create the IAM policy
+      aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
+      if [ $? -ne 0 ]; then
+        echo "Error: Unable to create IAM policy."
+        exit 1
+      fi
+      echo "Policy $POLICY_NAME created successfully."
       
-      # Attach the policy to the role
-      aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME
+      # Retrieve the policy ARN after creation
+      POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
+    fi
 
-      if [ $? -eq 0 ]; then
-        echo "Policy $POLICY_NAME attached to IAM role $ROLE_NAME."
-      else
+    # Attach the policy to the role if it's not already attached
+    ATTACHED_POLICIES=$(aws iam list-attached-role-policies --role-name $ROLE_NAME --query "AttachedPolicies[?PolicyName=='$POLICY_NAME'].PolicyArn" --output text)
+    if [ -z "$ATTACHED_POLICIES" ]; then
+      aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn $POLICY_ARN
+      if [ $? -ne 0 ]; then
         echo "Error: Unable to attach policy to IAM role."
         exit 1
       fi
+      echo "Policy $POLICY_NAME attached to IAM role $ROLE_NAME."
+    else
+      echo "Policy $POLICY_NAME is already attached to IAM role $ROLE_NAME."
     fi
+
   else
     # Retrieve the OIDC issuer URL
     OIDC_PROVIDER_URL=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text)
@@ -99,7 +139,8 @@ EOF
         "secretsmanager:GetSecretValue"
       ],
       "Resource": [
-       "$SECRET_ARN"
+       "$SECRET_ARN",
+       "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
        ]
     }
   ]
@@ -109,11 +150,10 @@ EOF
 
     # Create the IAM policy
     aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
-    
-    
 
     if [ $? -ne 0 ]; then
       echo "Error: Unable to create IAM policy."
+      exit 1
     fi
 
     # Get the policy ARN
@@ -126,7 +166,6 @@ EOF
 
     # Attach the policy to the role
     aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn $POLICY_ARN
-    aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
 
     if [ $? -ne 0 ]; then
       echo "Error: Unable to attach policy to IAM role."
@@ -143,7 +182,7 @@ create_service_account() {
 
   if [ $? -eq 0 ]; then
     echo "Service account $SERVICE_ACCOUNT_NAME already exists in namespace $SERVICE_ACCOUNT_NAMESPACE."
-    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME
+    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME --overwrite
     echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
   else
     # Create the Kubernetes service account with the IAM role annotation
