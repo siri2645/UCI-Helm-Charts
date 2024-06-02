@@ -20,6 +20,10 @@ It is the case that a release is an occurrence of a graph executing in a Kuberne
 Helm Commands:
 
 helm install: Installs a chart into a Kubernetes cluster.
+
+
+
+
 helm upgrade: Upgrades a release to a new chart or chart version.
 helm rollback: Rolls back a release to a previous version.
 helm list: Lists all releases in the cluster.
@@ -111,3 +115,116 @@ helm repo update
 helm install my-sonarqube sonarqube/sonarqube
 
 Customise sonarqube with available databse
+
+
+
+
+
+yum install postgresql
+
+
+
+To Login into database:
+
+psql -h <host> -p <port> -U <username> -d <database>
+       psql -h lucky-database.c5q68so8ev62.us-west-2.rds.amazonaws.com -p 5432 -U postgres -d sampleDB
+       
+       ➜  ~ psql -h lucky-db.cjoco4yuq5x6.ap-south-1.rds.amazonaws.com -p 5432 -U postgres -d luckydb
+            Password for user postgres:
+            psql (14.12 (Homebrew), server 16.2)
+            WARNING: psql major version 14, server major version 16.
+                     Some psql features might not work.
+            SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+            Type "help" for help.
+
+            luckydb=>
+            luckydb=>
+            
+            
+Create new Database:
+
+
+Before creating the database need to Alter the TABLESPACE for specific user:
+   
+   ALTER TABLESPACE pg_default OWNER TO postgres;
+
+
+CREATE DATABASE luckyDB
+WITH 
+    OWNER = postgres
+    TEMPLATE = template0
+    ENCODING = 'UTF8'
+    STRATEGY = default
+    COLLATION_VERSION = '153.0'
+    TABLESPACE = pg_default
+    ALLOW_CONNECTIONS = true
+    IS_TEMPLATE = false;
+
+
+
+Create new user :
+
+
+CREATE USER <username> [ WITH PASSWORD '<password>' | [ CREATEDB ] | [ NOCREATEDB ] | [ CREATEUSER ] | [ NOCREATEUSER ] | [ INHERIT ] | [ NOINHERIT ] | [ LOGIN ] | [ NOLOGIN ] | [ CONNECTION LIMIT <connlimit> ] | [ ENCRYPTED PASSWORD '<encrypted_password>' ] ];
+
+
+CREATE USER lucky WITH PASSWORD 'lucky1225' CREATEDB LOGIN CONNECTION LIMIT 50;
+
+
+
+To prevent database users from creating objects in the public schema, do the following:
+
+         REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+
+
+Revoke all privileges from the PUBLIC schema on this new database.
+
+        REVOKE ALL ON DATABASE luckydb FROM public;
+
+Give database users that have this role the ability to connect to the database.
+
+        GRANT CONNECT ON DATABASE luckydb TO lucky;
+
+Grant all users with the lab_tech role all privileges on this database.
+        GRANT ALL PRIVILEGES ON DATABASE luckydb TO lucky;
+
+
+Table Creation:
+
+creating new schema: CREATE SCHEMA lucky;
+
+CREATE TABLE lucky.customers (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Insert data into table:
+
+INSERT INTO lucky.customers (first_name, last_name, email)
+VALUES 
+('John', 'Doe', 'john.doe@example.com'),
+('Jane', 'Smith', 'jane.smith@example.com'),
+('Alice', 'Johnson', 'alice.johnson@example.com'),
+('Bob', 'Brown', 'bob.brown@example.com');
+
+
+
+INSERT INTO lucky.customers
+(customer_id, first_name, last_name, email, created_at)
+VALUES(6, 'siri', 'Hanumanthu', 'siri.hanumanth@example.com', '2024-06-01 10:39:15.752');
+
+            
+To list databses in postgress:
+  psql -h lucky-db.cjoco4yuq5x6.ap-south-1.rds.amazonaws.com -p 5432 -U postgres -d luckydb -l
+  or 
+  \l+
+  
+To list users in postgres: \du
+  
+
+To check Roles:
+
+SELECT rolname FROM pg_roles;
