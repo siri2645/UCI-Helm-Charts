@@ -9,19 +9,19 @@ metadata:
   region: us-west-2
   version: "1.29"
 
-vpc:
-  id: vpc-0f9fdc066a250aec8
-  subnets:
-    private:
-      us-west-2a:
-          id: "subnet-0705a5475ffefc50a"
-      us-west-2b:
-          id: "subnet-088bf7d6e19c0786a"
-    public:
-      us-west-2a:
-          id: "subnet-0dc0d3baa00fa551c"
-      us-west-2b:
-          id: "subnet-0200f4c8e7f203718"
+#vpc:
+#  id: vpc-0f9fdc066a250aec8
+#  subnets:
+#    private:
+#      us-west-2a:
+#          id: "subnet-0705a5475ffefc50a"
+#      us-west-2b:
+#          id: "subnet-088bf7d6e19c0786a"
+#    public:
+#      us-west-2a:
+#          id: "subnet-0dc0d3baa00fa551c"
+#      us-west-2b:
+#          id: "subnet-0200f4c8e7f203718"
 
 nodeGroups:
   - name: lucky-eks-cluster-alb
@@ -37,6 +37,8 @@ nodeGroups:
        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+       - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+       - arn:aws:iam::aws:policy/service-role/ROSAAmazonEBSCSIDriverOperatorPolicy
       withAddonPolicies:
         autoScaler: true
         ebs: true
