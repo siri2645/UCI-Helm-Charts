@@ -1,230 +1,160 @@
-[8:16 PM, 5/31/2024] Lakshman Ktps: What is Helm?
-
-Kubernetes package manager, Helm helps to control Kubernetes applications. It is possible to use Helm for definition, installation and upgrade even most complex Kubernetes apps. The packaging format it uses is called Charts which were created as a grouping of files describing a related group of Kubernetes resources.
-
-Here are the key components and concepts of Helm:
-
-Charts:
-
-A package that comes with all configurations needed to install an application on a Kubernetes cluster is known as Helm chart. This includes configuration files and templates for Kubernetes resources (Deployments, Services, ConfigMaps etc.).
-
-Repositories:
-
-Helm charts are kept in repositories which are sets of packed charts that can be shared with other people. You may either go for public sources like the stable repository of the Helm or choose to create your own personal repositories.
-
-Releases:
-
-It is the case that a release is an occurrence of a graph executing in a Kubernetes block. What happens when you install a chart using Helm is that it makes a release. There exists another version for each release and Helm enables you to upgrade or rollback any releases.
-[8:16 PM, 5/31/2024] Lakshman Ktps: some basic command of Helm:
-
-Helm Commands:
-
-helm install: Installs a chart into a Kubernetes cluster.
-
-
-
-
-helm upgrade: Upgrades a release to a new chart or chart version.
-helm rollback: Rolls back a release to a previous version.
-helm list: Lists all releases in the cluster.
-helm repo add: Adds a new chart repository.
-helm repo update: Updates the local list of charts from the repositories.
-
-
-
-
-
-[8:24 PM, 5/31/2024] Lakshman Ktps: what is Nginx-Ingress controller?
-
-The Nginx Ingress Controller is a Kubernetes ecosystem component that manages and routes traffic from outside the cluster to appropriate services within it through Nginx. It plays the role of a first contact for external HTTP and HTTPS traffic thereby enabling exposure of Kubernetes services outside.
-
-Key Functions of Nginx Ingress Controller
-
-Routing: Routes traffic based on URL paths or hostnames to appropriate Kubernetes services.
-Load Balancing: Spreads out load among multiple service instances to achieve high availability and reliability.
-SSL/TLS Termination: Performs SSL/TLS encryption and decryption offloading, effectively managing HTTPS connections.
-Authentication and Authorization: Supports various authentication mechanisms and access controls.
-Custom Configuration: Enables custom Nginx configuration for specific use cases through ConfigMaps or annotations.
-
-Installing Nginx Ingress Controller
-
-There are several ways you can install a Nginx Ingress Controller on your Kubernetes cluster. Here, we will make use of Helm – a well-known package manager for Kubernetes which simplifies this process considerably.
-
-Prerequisites
-
-A running kubernetes cluster.
-Helm installed on your local machine.
-
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install my-nginx-ingress ingress-nginx/ingress-nginx
-kubectl get pods -n default -l app.kubernetes.io/name=ingress-nginx    --> To verify the Installation
-: What is Jenkins?
-
-Jenkins is a highly resourceful open-source automation server used widely for continuous integration and continuous delivery (CI/CD). It helps to automate all the aspects of software development that have to do with building, testing, and deploying, thus enabling DevOps approaches.
-
-Key Features of Jenkins
-
-Expandable: It provides more than one thousand five hundred plugins to support any project concerning building, deploying and automating.
-
-Building Frameworks for Distributed Systems: It can help break out the build/test loads across several machines.
-
-Easy Installation: Packages, Docker or standalone Java applications are some forms that can be installed on different platforms.
-
-Customizable: Has many plugins hence highly customizable.
-
-Uses of Jenkins
-
-Continuous Integration: This process involves building and testing the code automatically whenever a developer commits changes ensuring that the code is always ready for deployment.
-
-Continuous Delivery: Automates application deployment making release new functionalities and updates into production environments easier.
-
-Pipeline as Code: Better version control and easy collaboration by defining build and deployment pipelines using code
-
-Automated Testing: Executes unit tests, integration tests and end-to-end tests through integrating with various testing frameworks.
-
-Monitoring and Reporting: Teams will be able to quickly identify failing deployments with instant feedback on builds.
-
-Installation of Jenkins using Helm:
-helm repo add jenkins https://charts.jenkins.io
-helm repo update
-helm install my-jenkins jenkins/jenkins
-
-
-
-What is SonarQube?
-SonarQube is an open-source platform used for continuous inspection of code quality. It performs static code analysis, providing detailed reports on code duplication, coding standards, code coverage, bugs, code smells, and security vulnerabilities.
-
-Key Features of SonarQube
-Static Code Analysis: Analyzes code to find issues without executing the code.
-Multi-Language Support: Supports a wide range of programming languages.
-Quality Gates: Define a set of conditions that code must meet before it can be considered of acceptable quality.
-Integrations: Integrates with CI/CD tools like Jenkins, Azure DevOps, GitHub Actions, etc.
-Extensible: Can be extended with plugins for additional functionalities.
-
-Uses of SonarQube
-Code Quality Management: Helps maintain high standards of code quality by identifying and rectifying issues early in the development process.
-Continuous Inspection: Integrates with CI/CD pipelines to provide continuous feedback on code quality.
-Technical Debt Management: Assists in identifying and managing technical debt.
-Security Vulnerability Detection: Detects security vulnerabilities in the codebase.
-Compliance: Ensures that the code adheres to industry standards and regulations.
-
-Installing SonarQube Using Helm
-helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
-helm repo update
-helm install my-sonarqube sonarqube/sonarqube
-
-Customise sonarqube with available databse
-
-
-
-
-
-yum install postgresql
-
-
-
-To Login into database:
-
-psql -h <host> -p <port> -U <username> -d <database>
-       psql -h lucky-database.c5q68so8ev62.us-west-2.rds.amazonaws.com -p 5432 -U postgres -d sampleDB
-       
-       ➜  ~ psql -h lucky-db.cjoco4yuq5x6.ap-south-1.rds.amazonaws.com -p 5432 -U postgres -d luckydb
-            Password for user postgres:
-            psql (14.12 (Homebrew), server 16.2)
-            WARNING: psql major version 14, server major version 16.
-                     Some psql features might not work.
-            SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
-            Type "help" for help.
-
-            luckydb=>
-            luckydb=>
-            
-            
-Create new Database:
-
-
-Before creating the database need to Alter the TABLESPACE for specific user:
-   
-   ALTER TABLESPACE pg_default OWNER TO postgres;
-
-
-CREATE DATABASE luckyDB
-WITH 
-    OWNER = postgres
-    TEMPLATE = template0
-    ENCODING = 'UTF8'
-    STRATEGY = default
-    COLLATION_VERSION = '153.0'
-    TABLESPACE = pg_default
-    ALLOW_CONNECTIONS = true
-    IS_TEMPLATE = false;
-
-
-
-Create new user :
-
-
-CREATE USER <username> [ WITH PASSWORD '<password>' | [ CREATEDB ] | [ NOCREATEDB ] | [ CREATEUSER ] | [ NOCREATEUSER ] | [ INHERIT ] | [ NOINHERIT ] | [ LOGIN ] | [ NOLOGIN ] | [ CONNECTION LIMIT <connlimit> ] | [ ENCRYPTED PASSWORD '<encrypted_password>' ] ];
-
-
-CREATE USER lucky WITH PASSWORD 'lucky1225' CREATEDB LOGIN CONNECTION LIMIT 50;
-
-
-
-To prevent database users from creating objects in the public schema, do the following:
-
-         REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-
-
-Revoke all privileges from the PUBLIC schema on this new database.
-
-        REVOKE ALL ON DATABASE luckydb FROM public;
-
-Give database users that have this role the ability to connect to the database.
-
-        GRANT CONNECT ON DATABASE luckydb TO lucky;
-
-Grant all users with the lab_tech role all privileges on this database.
-        GRANT ALL PRIVILEGES ON DATABASE luckydb TO lucky;
-
-
-Table Creation:
-
-creating new schema: CREATE SCHEMA lucky;
-
-CREATE TABLE lucky.customers (
-    customer_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-Insert data into table:
-
-INSERT INTO lucky.customers (first_name, last_name, email)
-VALUES 
-('John', 'Doe', 'john.doe@example.com'),
-('Jane', 'Smith', 'jane.smith@example.com'),
-('Alice', 'Johnson', 'alice.johnson@example.com'),
-('Bob', 'Brown', 'bob.brown@example.com');
-
-
-
-INSERT INTO lucky.customers
-(customer_id, first_name, last_name, email, created_at)
-VALUES(6, 'siri', 'Hanumanthu', 'siri.hanumanth@example.com', '2024-06-01 10:39:15.752');
-
-            
-To list databses in postgress:
-  psql -h lucky-db.cjoco4yuq5x6.ap-south-1.rds.amazonaws.com -p 5432 -U postgres -d luckydb -l
-  or 
-  \l+
-  
-To list users in postgres: \du
-  
-
-To check Roles:
-
-SELECT rolname FROM pg_roles;
+#!/bin/bash
+
+# Variables
+ACCOUNT_NUMBER="068132906153"
+CLUSTER_NAME="uc2-automation-eks-cluster"
+ROLE_NAME="AWS-SECRET-CSI-STORE-ROLE"
+OIDC_AUDIENCE="sts.amazonaws.com"
+POLICY_NAME="secret-store-policy"
+POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
+SERVICE_ACCOUNT_NAMESPACE="sonarqube"
+SERVICE_ACCOUNT_NAME="sonarqube-sa"
+REGION="us-east-1"
+RDS_SECRET_NAME="rds!db-1afd144f-8e74-4ee8-9063-5d9af044844a"
+
+create_iam_resources() {
+  # Check if the role already exists
+  ROLE_EXISTS=$(aws iam get-role --role-name $ROLE_NAME 2>/dev/null)
+
+  if [ $? -eq 0 ]; then
+    echo "IAM role $ROLE_NAME already exists."
+
+    # Check if the policy already exists
+    POLICY_EXISTS=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME 2>/dev/null)
+
+    if [ $? -eq 0 ]; then
+      echo "IAM policy $POLICY_NAME already exists."
+      
+      # Attach the policy to the role
+      aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME
+
+      if [ $? -eq 0 ]; then
+        echo "Policy $POLICY_NAME attached to IAM role $ROLE_NAME."
+      else
+        echo "Error: Unable to attach policy to IAM role."
+        exit 1
+      fi
+    fi
+  else
+    # Retrieve the OIDC issuer URL
+    OIDC_PROVIDER_URL=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text)
+
+    if [ -z "$OIDC_PROVIDER_URL" ]; then
+      echo "Error: Unable to retrieve OIDC issuer URL."
+      exit 1
+    fi
+
+    echo "OIDC PROVIDER URL: $OIDC_PROVIDER_URL"
+
+    # Extract the OIDC provider ARN
+    OIDC_PROVIDER_ARN="arn:aws:iam::$ACCOUNT_NUMBER:oidc-provider/$(echo $OIDC_PROVIDER_URL | sed 's|https://||')"
+
+    echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
+
+    # Create the IAM role trust policy
+    TRUST_POLICY=$(cat <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "$OIDC_PROVIDER_ARN"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):aud": "sts.amazonaws.com",
+          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
+        }
+      }
+    }
+  ]
+}
+EOF
+    )
+
+    # Create the IAM role with the trust policy
+    aws iam create-role --role-name $ROLE_NAME --assume-role-policy-document "$TRUST_POLICY"
+
+    if [ $? -ne 0 ]; then
+      echo "Error: Unable to create IAM role."
+      exit 1
+    fi
+
+    # Fetch the secret ARN
+    SECRET_ARN=$(aws secretsmanager list-secrets --query "SecretList[?Name=='$RDS_SECRET_NAME'].ARN" --output text)
+
+    echo "RDS-Secret-Arn: $SECRET_ARN"
+
+    # Policy Document
+    POLICY_DOCUMENT=$(cat <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+       "$SECRET_ARN",
+       arn:aws:iam::aws:policy/SecretsManagerReadWrite 
+       ]
+    }
+  ]
+}
+EOF
+    )
+
+    # Create the IAM policy
+    aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
+
+    if [ $? -ne 0 ]; then
+      echo "Error: Unable to create IAM policy."
+    fi
+
+    # Get the policy ARN
+    POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
+
+    if [ -z "$POLICY_ARN" ]; then
+      echo "Error: Unable to retrieve policy ARN."
+      exit 1
+    fi
+
+    # Attach the policy to the role
+    aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn $POLICY_ARN
+
+    if [ $? -ne 0 ]; then
+      echo "Error: Unable to attach policy to IAM role."
+      exit 1
+    fi
+
+    echo "Successfully created IAM role $ROLE_NAME and attached policy $POLICY_NAME."
+  fi
+}
+
+create_service_account() {
+  # Check if the service account already exists
+  kubectl get sa $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    echo "Service account $SERVICE_ACCOUNT_NAME already exists in namespace $SERVICE_ACCOUNT_NAMESPACE."
+    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME
+    echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
+  else
+    # Create the Kubernetes service account with the IAM role annotation
+    kubectl create serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE
+    if [ $? -eq 0 ]; then
+      kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME
+      echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
+    else
+      echo "Unable to create Service Account with $ROLE_NAME"
+    fi
+  fi
+}
+
+# Execute functions
+create_iam_resources
+create_service_account
