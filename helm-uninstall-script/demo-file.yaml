@@ -158,3 +158,14 @@ create_service_account() {
 # Execute functions
 create_iam_resources
 create_service_account
+
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jfrog-secret
+  namespace: jfrog
+type: Opaque
+data:
+  master-key: 6d62e2b3a0310f327168ff37e6e93548986776ffb50a3b50092f9e4367ab05e4
+  join-key: 6d62e2b3a0310f327168ff37e6e93548986776ffb50a3b50092f9e4367ab05e4
