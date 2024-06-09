@@ -1,171 +1,94 @@
-#!/bin/bash
+What is Helm
+=============
+            Kubernetes package manager, Helm helps to control Kubernetes applications. It is possible to use Helm for definition, installation and upgrade even most complex Kubernetes apps. The packaging format it uses is called Charts which were created as a grouping of files describing a related group of Kubernetes resources.
 
-# Variables
-ACCOUNT_NUMBER="068132906153"
-CLUSTER_NAME="uc2-automation-eks-cluster"
-ROLE_NAME="AWS-SECRET-CSI-STORE-ROLE"
-OIDC_AUDIENCE="sts.amazonaws.com"
-POLICY_NAME="secret-store-policy"
-POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
-SERVICE_ACCOUNT_NAMESPACE="sonarqube"
-SERVICE_ACCOUNT_NAME="sonarqube-sa"
-REGION="us-east-1"
-RDS_SECRET_NAME="rds!db-1afd144f-8e74-4ee8-9063-5d9af044844a"
+Here are the key components and concepts of Helm:
 
-create_iam_resources() {
-  # Check if the role already exists
-  ROLE_EXISTS=$(aws iam get-role --role-name $ROLE_NAME 2>/dev/null)
+        Charts:
+            A package that comes with all configurations needed to install an application on a Kubernetes cluster is known as Helm chart. This includes configuration files and templates for Kubernetes resources (Deployments, Services, ConfigMaps etc.)
+    
+        Repositories:
+            Helm charts are kept in repositories which are sets of packed charts that can be shared with other people. You may either go for public sources like the stable repository of the Helm or choose to create your own personal repositories.
 
-  if [ $? -eq 0 ]; then
-    echo "IAM role $ROLE_NAME already exists."
-
-    # Check if the policy already exists
-    POLICY_EXISTS=$(aws iam get-policy --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME 2>/dev/null)
-
-    if [ $? -eq 0 ]; then
-      echo "IAM policy $POLICY_NAME already exists."
-      
-      # Attach the policy to the role
-      aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$ACCOUNT_NUMBER:policy/$POLICY_NAME
-
-      if [ $? -eq 0 ]; then
-        echo "Policy $POLICY_NAME attached to IAM role $ROLE_NAME."
-      else
-        echo "Error: Unable to attach policy to IAM role."
-        exit 1
-      fi
-    fi
-  else
-    # Retrieve the OIDC issuer URL
-    OIDC_PROVIDER_URL=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text)
-
-    if [ -z "$OIDC_PROVIDER_URL" ]; then
-      echo "Error: Unable to retrieve OIDC issuer URL."
-      exit 1
-    fi
-
-    echo "OIDC PROVIDER URL: $OIDC_PROVIDER_URL"
-
-    # Extract the OIDC provider ARN
-    OIDC_PROVIDER_ARN="arn:aws:iam::$ACCOUNT_NUMBER:oidc-provider/$(echo $OIDC_PROVIDER_URL | sed 's|https://||')"
-
-    echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
-
-    # Create the IAM role trust policy
-    TRUST_POLICY=$(cat <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "$OIDC_PROVIDER_ARN"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):aud": "sts.amazonaws.com",
-          "$(echo $OIDC_PROVIDER_URL | sed 's|https://||'):sub": "system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME"
-        }
-      }
-    }
-  ]
-}
-EOF
-    )
-
-    # Create the IAM role with the trust policy
-    aws iam create-role --role-name $ROLE_NAME --assume-role-policy-document "$TRUST_POLICY"
-
-    if [ $? -ne 0 ]; then
-      echo "Error: Unable to create IAM role."
-      exit 1
-    fi
-
-    # Fetch the secret ARN
-    SECRET_ARN=$(aws secretsmanager list-secrets --query "SecretList[?Name=='$RDS_SECRET_NAME'].ARN" --output text)
-
-    echo "RDS-Secret-Arn: $SECRET_ARN"
-
-    # Policy Document
-    POLICY_DOCUMENT=$(cat <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "secretsmanager:DescribeSecret",
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": [
-       "$SECRET_ARN",
-       arn:aws:iam::aws:policy/SecretsManagerReadWrite 
-       ]
-    }
-  ]
-}
-EOF
-    )
-
-    # Create the IAM policy
-    aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
-
-    if [ $? -ne 0 ]; then
-      echo "Error: Unable to create IAM policy."
-    fi
-
-    # Get the policy ARN
-    POLICY_ARN=$(aws iam list-policies --query "Policies[?PolicyName=='$POLICY_NAME'].Arn" --output text)
-
-    if [ -z "$POLICY_ARN" ]; then
-      echo "Error: Unable to retrieve policy ARN."
-      exit 1
-    fi
-
-    # Attach the policy to the role
-    aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn $POLICY_ARN
-
-    if [ $? -ne 0 ]; then
-      echo "Error: Unable to attach policy to IAM role."
-      exit 1
-    fi
-
-    echo "Successfully created IAM role $ROLE_NAME and attached policy $POLICY_NAME."
-  fi
-}
-
-create_service_account() {
-  # Check if the service account already exists
-  kubectl get sa $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE > /dev/null 2>&1
-
-  if [ $? -eq 0 ]; then
-    echo "Service account $SERVICE_ACCOUNT_NAME already exists in namespace $SERVICE_ACCOUNT_NAMESPACE."
-    kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME
-    echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
-  else
-    # Create the Kubernetes service account with the IAM role annotation
-    kubectl create serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE
-    if [ $? -eq 0 ]; then
-      kubectl annotate serviceaccount $SERVICE_ACCOUNT_NAME -n $SERVICE_ACCOUNT_NAMESPACE eks.amazonaws.com/role-arn=arn:aws:iam::$ACCOUNT_NUMBER:role/$ROLE_NAME
-      echo "Service account $SERVICE_ACCOUNT_NAME in namespace $SERVICE_ACCOUNT_NAMESPACE is now linked to IAM role $ROLE_NAME."
-    else
-      echo "Unable to create Service Account with $ROLE_NAME"
-    fi
-  fi
-}
-
-# Execute functions
-create_iam_resources
-create_service_account
+        Releases:
+            It is the case that a release is an occurrence of a graph executing in a Kubernetes block. What happens when you install a chart using Helm is that it makes a release. There exists another version for each release and Helm enables you to upgrade or rollback any releases.
 
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: jfrog-secret
-  namespace: jfrog
-type: Opaque
-data:
-  master-key: 6d62e2b3a0310f327168ff37e6e93548986776ffb50a3b50092f9e4367ab05e4
-  join-key: 6d62e2b3a0310f327168ff37e6e93548986776ffb50a3b50092f9e4367ab05e4
+some basic command of Helm:
+---------------------------
+Helm Commands:
+--------------
+helm install: Installs a chart into a Kubernetes cluster.
+helm upgrade: Upgrades a release to a new chart or chart version.
+helm rollback: Rolls back a release to a previous version.
+helm list: Lists all releases in the cluster.
+helm repo add: Adds a new chart repository.
+helm repo update: Updates the local list of charts from the repositories.
+
+
+
+what is Nginx-Ingress controller:-
+================================
+The Nginx Ingress Controller is a Kubernetes ecosystem component that manages and routes traffic from outside the cluster to appropriate services within it through Nginx. It plays the role of a first contact for external HTTP and HTTPS traffic thereby enabling exposure of Kubernetes services outside.
+Key Functions of Nginx Ingress Controller:
+-----------------------------------------
+Routing: Routes traffic based on URL paths or hostnames to appropriate Kubernetes services.
+Load Balancing: Spreads out load among multiple service instances to achieve high availability and reliability.
+SSL/TLS Termination: Performs SSL/TLS encryption and decryption offloading, effectively managing HTTPS connections.
+Authentication and Authorization: Supports various authentication mechanisms and access controls.
+Custom Configuration: Enables custom Nginx configuration for specific use cases through ConfigMaps or annotations.
+Installing Nginx Ingress Controller using Helm:
+---------------------------------------------------
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install my-nginx-ingress ingress-nginx/ingress-nginx
+
+
+
+What is Jenkins:-
+================
+Jenkins is a highly resourceful open-source automation server used widely for continuous integration and continuous delivery (CI/CD). It helps to automate all the aspects of software development that have to do with building, testing, and deploying, thus enabling DevOps approaches.
+Key Features of Jenkins:
+-----------------------
+Expandable: It provides more than one thousand five hundred plugins to support any project concerning building, deploying and automating.
+Building Frameworks for Distributed Systems: It can help break out the build/test loads across several machines.
+Easy Installation: Packages, Docker or standalone Java applications are some forms that can be installed on different platforms.
+Customizable: Has many plugins hence highly customizable.
+Uses of Jenkins:
+---------------
+Continuous Integration: This process involves building and testing the code automatically whenever a developer commits changes ensuring that the code is always ready for deployment.
+Continuous Delivery: Automates application deployment making release new functionalities and updates into production environments easier.
+Pipeline as Code: Better version control and easy collaboration by defining build and deployment pipelines using code
+Automated Testing: Executes unit tests, integration tests and end-to-end tests through integrating with various testing frameworks.
+Monitoring and Reporting: Teams will be able to quickly identify failing deployments with instant feedback on builds.
+Installing Jenkins using Helm:
+-----------------------------------
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+helm install my-jenkins jenkins/jenkins
+
+
+
+What is SonarQube:-
+=================
+SonarQube is an open-source platform used for continuous inspection of code quality. It performs static code analysis, providing detailed reports on code duplication, coding standards, code coverage, bugs, code smells, and security vulnerabilities.
+Key Features of SonarQube:
+-------------------------
+Static Code Analysis: Analyzes code to find issues without executing the code.
+Multi-Language Support: Supports a wide range of programming languages.
+Quality Gates: Define a set of conditions that code must meet before it can be considered of acceptable quality.
+Integrations: Integrates with CI/CD tools like Jenkins, Azure DevOps, GitHub Actions, etc.
+Extensible: Can be extended with plugins for additional functionalities.
+Uses of SonarQube:
+------------------
+Code Quality Management: Helps maintain high standards of code quality by identifying and rectifying issues early in the development process.
+Continuous Inspection: Integrates with CI/CD pipelines to provide continuous feedback on code quality.
+Technical Debt Management: Assists in identifying and managing technical debt.
+Security Vulnerability Detection: Detects security vulnerabilities in the codebase.
+Compliance: Ensures that the code adheres to industry standards and regulations.
+Installing SonarQube Using Helm:
+--------------------------------
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
+helm install my-sonarqube sonarqube/sonarqube
+Customise sonarqube with available database
