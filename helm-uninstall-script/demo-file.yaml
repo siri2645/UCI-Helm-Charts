@@ -92,3 +92,37 @@ helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
 helm repo update
 helm install my-sonarqube sonarqube/sonarqube
 Customise sonarqube with available database
+
+
+
+#!/bin/bash
+
+# Function to generate a secure random key
+generate_key() {
+  openssl rand -hex 32
+}
+
+# Generate Master Key and Join Key
+MASTER_KEY=$(generate_key)
+JOIN_KEY=$(generate_key)
+
+# Encode the keys in base64 for Kubernetes secret
+MASTER_KEY_BASE64=$(echo -n "$MASTER_KEY" | base64)
+JOIN_KEY_BASE64=$(echo -n "$JOIN_KEY" | base64)
+
+# Create the secret.yaml file
+cat <<EOF > secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: artifactory-secret
+  namespace: artifactory
+type: Opaque
+data:
+  master-key: $MASTER_KEY_BASE64
+  join-key: $JOIN_KEY_BASE64
+EOF
+
+echo "secret.yaml file has been generated."
+
+kubectl apply -f secret.yaml
