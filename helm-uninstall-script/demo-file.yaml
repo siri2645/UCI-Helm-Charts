@@ -518,3 +518,11 @@ dnsConfig: {}
 
 # -- Any extra pod spec on the deployment
 podSpecExtra: {}
+
+
+
+#!/bin/bash
+
+helm repo add jfrog https://charts.jfrog.io    
+helm repo update
+helm upgrade --create-namespace --install jfrog jfrog/jfrog-platform -n jfrog --values jfrog-values.yaml
