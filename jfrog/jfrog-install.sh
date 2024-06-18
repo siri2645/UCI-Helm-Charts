@@ -16,14 +16,17 @@ echo "JOIN_KEY: ${JOIN_KEY}"
 # Install/Upgrade Artifactory with Helm
 helm upgrade --install artifactory --set artifactory.replicaCount=3 --set artifactory.masterKey=${MASTER_KEY} --set artifactory.joinKey=${JOIN_KEY} --namespace $namespace --create-namespace jfrog/artifactory --values jfrog-values.yaml
 
+
 # Get the PostgreSQL password from the secret and decode it
-POSTGRESQL_PASSWORD=$(kubectl get secret jfrogdb-secrets -n $namespace -o jsonpath='{.data.postgresql_password}' | base64 --decode)
+POSTGRESQL_PASSWORD=$(kubectl get secret jfrog-secrets -n $namespace -o jsonpath='{.data.postgresql_password}')
+
 
 # Export the PostgreSQL password
 export POSTGRESQL_PASSWORD
 
-# Patch the artifactory-postgres secret with the new PostgreSQL password
-kubectl patch secret artifactory-postgresql -n $namespace --type='json' -p='[{"op": "replace", "path": "/data/postgresql-password", "value":"'"$(echo -n $POSTGRESQL_PASSWORD | base64)"'"}]'
+
+kubectl patch secret artifactory-postgresql -n $namespace --type='json' -p='[{"op": "replace", "path": "/data/postgresql-password", "value":"'"$POSTGRESQL_PASSWORD"'"}]'
+
 
 echo "artifactory-postgres secret updated successfully"
 
