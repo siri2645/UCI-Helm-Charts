@@ -1,6 +1,6 @@
 #!/bin/bash
 
-namespace=jfrog
+namespace="jfrog"
 
 helm repo add jfrog https://charts.jfrog.io
 helm repo update
