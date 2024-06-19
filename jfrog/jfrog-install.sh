@@ -18,6 +18,8 @@ echo "JOIN_KEY: ${JOIN_KEY}"
 # Install/Upgrade Artifactory with Helm
 helm upgrade --install artifactory --set artifactory.replicaCount=3 --set artifactory.masterKey=${MASTER_KEY} --set artifactory.joinKey=${JOIN_KEY} --namespace $namespace --create-namespace jfrog/artifactory --values jfrog-values.yaml
 
+sleep 120
+
 # Fetch the POSTGRESQL_PASSWORD from the source secret and decode it
 POSTGRESQL_PASSWORD=$(kubectl get secret $source_secret -n $namespace -o jsonpath='{.data.POSTGRESQL_PASSWORD}' | base64 --decode)
 
