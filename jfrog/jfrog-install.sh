@@ -1,6 +1,8 @@
 #!/bin/bash
 
 namespace="jfrog"
+source_secret="jfrogdb-secrets"     ##This secret is coming from external-secrets from aws
+target_secret="artifactory-postgresql"     ##This secret is coming from default from helm jfrog 
 
 # Add JFrog Helm repo and update
 helm repo add jfrog https://charts.jfrog.io
@@ -16,19 +18,16 @@ echo "JOIN_KEY: ${JOIN_KEY}"
 # Install/Upgrade Artifactory with Helm
 helm upgrade --install artifactory --set artifactory.replicaCount=3 --set artifactory.masterKey=${MASTER_KEY} --set artifactory.joinKey=${JOIN_KEY} --namespace $namespace --create-namespace jfrog/artifactory --values jfrog-values.yaml
 
+# Fetch the POSTGRESQL_PASSWORD from the source secret and decode it
+POSTGRESQL_PASSWORD=$(kubectl get secret $source_secret -n $namespace -o jsonpath='{.data.POSTGRESQL_PASSWORD}' | base64 --decode)
 
-# Get the PostgreSQL password from the secret and decode it
-POSTGRESQL_PASSWORD=$(kubectl get secret jfrog-secrets -n $namespace -o jsonpath='{.data.postgresql_password}')
+# Base64 encode the password for the target secret
+ENCODED_POSTGRESQL_PASSWORD=$(echo -n $POSTGRESQL_PASSWORD | base64)
 
+# Patch the target secret with the new password
+kubectl patch secret $target_secret -n $namespace --type='json' -p='[{"op": "replace", "path": "/data/postgresql-password", "value":"'"$ENCODED_POSTGRESQL_PASSWORD"'"}]'
 
-# Export the PostgreSQL password
-export POSTGRESQL_PASSWORD
-
-
-kubectl patch secret artifactory-postgresql -n $namespace --type='json' -p='[{"op": "replace", "path": "/data/postgresql-password", "value":"'"$POSTGRESQL_PASSWORD"'"}]'
-
-
-echo "artifactory-postgres secret updated successfully"
+echo "artifactory-postgresql secret updated successfully"
 
 # Define patterns for pod names to delete
 PATTERNS=("artifactory-0" "artifactory-1" "artifactory-2")
