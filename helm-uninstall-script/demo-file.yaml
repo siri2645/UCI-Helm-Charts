@@ -14,10 +14,10 @@ global:
   versions: {}
   artifactory:
   # initContainers:
-    joinKey: 73a07966af3c15000ddfdf2a954e0c6159b238b7507af1757b7ab82695583896
-    masterKey: 0676552aedb8b650b49d5efd970cd7671d7a1aec63b8eadef4f23b47130baa5b
-     #joinKeySecretName: artifactoy-secret
-     #masterKeySecretName: artifactory-secret
+  #joinKey: f4e60e42985329ab2df79f00ad56642842b58bb1a78fe64f312c59baf3d95b3c
+  #masterKey: 9273b0e862d7a06b9840def7e3db64d8ce5ee78f2d9f7a6f86c4cd8c67691dba
+  # joinKeySecretName:
+  # masterKeySecretName:
 
   ## Note: tags customInitContainersBegin,customInitContainers,customVolumes,customVolumeMounts,customSidecarContainers can be used both from global and application level simultaneously
   # customInitContainersBegin: |
@@ -78,8 +78,6 @@ installer:
 systemYamlOverride:
   ## You can use a pre-existing secret by specifying existingSecret
   existingSecret:
-    #existingSecret: "postgresql-password"
-    #existingSecretKey: "postgresql-password"
   ## The dataKey should be the name of the secret data key created.
   dataKey:
 ## Role Based Access Control
@@ -117,14 +115,13 @@ ingress:
     enabled: false
   # Used to create an Ingress record.
   hosts: [ucdevops.exlservice.com]
-  routerPath: /jfrog/
-  artifactoryPath: /jfrog/
-  rtfsPath: /jfrog/service/rtfs/
+  routerPath: /
+  artifactoryPath: /artifactory/
+  rtfsPath: /artifactory/service/rtfs/
   className: "nginx"
   annotations: {}
   kubernetes.io/ingress.class: nginx
-  nginx.ingress.kubernetes.io/configuration-snippet: |
-    rewrite ^/jfrog(/|$)(.*) /artifactory/$2 break;
+  # nginx.ingress.kubernetes.io/configuration-snippet: |
   #   proxy_pass_header   Server;
   #   proxy_set_header    X-JFrog-Override-Base-Url https://<artifactory-domain>;
   # kubernetes.io/tls-acme: "true"
@@ -288,7 +285,7 @@ artifactory:
   ## root certificates added will be copied to $JFROG_HOME/artifactory/var/etc/access/keys/trusted folder.
   circleOfTrustCertificatesSecret:
   # unifiedSecretInstallation flag enables single unified secret holding all the artifactory internal(chart) secrets, It won't be affecting external secrets.
-  ## Note: unifiedSecretInstallation flag is enabled by true by default from chart version 107.79.x, Users can switch to false to continue with the old wayof secret creation.
+  ## Note: unifiedSecretInstallation flag is enabled by true by default from chart version 107.79.x, Users can switch to false to continue with the old way of secret creation.
   unifiedSecretInstallation: true
   ## unifiedSecretPrependReleaseName Set this flag to false if unifiedSecret should not be created with <release-name> prepended.
   unifiedSecretPrependReleaseName: true
@@ -629,6 +626,7 @@ artifactory:
   #     secretKeyRef:
   #       name: my-secret-name
   #       key: my-secret-key
+
   ## System YAML entries now reside under files/system.yaml.
   ## You can provide the specific values that you want to add or override under 'artifactory.extraSystemYaml'.
   ## For example:
@@ -1690,17 +1688,18 @@ postgresql:
     repository: bitnami/postgresql
     tag: 15.6.0-debian-11-r16
   postgresqlUsername: jfrogdbadmin
-    #postgresqlPassword:
+  #postgresqlPassword:
   extraEnv:
     - name: POSTGRESQL_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: postgresql-password
-          key: postgresql-password
+          name: jfrogdb-secrets
+          key: POSTGRESQL_PASSWORD
   postgresqlDatabase: jfrogdb
   postgresqlExtendedConf:
     listenAddresses: "*"
     maxConnections: "1500"
+    databaseUpgradeReady: true
   persistence:
     enabled: true
     size: 200Gi
