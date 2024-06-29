@@ -422,8 +422,7 @@ artifactory:
     enabled: true
     timeoutSeconds: 3600
     ## Extra pre-start command in migration Init Container to install JDBC driver for MySql/MariaDb/Oracle
-    preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644
- mysql-connector-java-8.0.30.jar"
+    preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644 mysql-connector-java-8.0.30.jar"
   ## Add custom init containers execution before predefined init containers
   customInitContainersBegin: ""
   #  - name: "custom-setup"
@@ -590,8 +589,7 @@ artifactory:
     secret:
     dataKey:
   ## Extra pre-start command to install JDBC driver for MySql/MariaDb/Oracle
-  preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644
- mysql-connector-java-8.0.30.jar"
+  preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644 mysql-connector-java-8.0.30.jar"
 
   # Add lifecycle hooks for artifactory container
   lifecycle: {}
