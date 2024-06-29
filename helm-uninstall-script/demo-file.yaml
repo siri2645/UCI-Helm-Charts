@@ -3,7 +3,7 @@
 
 # Beware when changing values here. You should know what you are doing!
 # Access the values with {{ .Values.key.subkey }}
-databaseUpgradeReady: true
+
 global:
   # imageRegistry: releases-docker.jfrog.io
   # imagePullSecrets:
@@ -12,10 +12,10 @@ global:
   ## Note: Order of preference is 1) global.versions 2) .Values.artifactory.image.tag 3) Chart.AppVersion
   ## This applies also for nginx images (.Values.nginx.image.tag)
   versions: {}
-  artifactory:
-  # initContainers:
-  #joinKey: f4e60e42985329ab2df79f00ad56642842b58bb1a78fe64f312c59baf3d95b3c
-  #masterKey: 9273b0e862d7a06b9840def7e3db64d8ce5ee78f2d9f7a6f86c4cd8c67691dba
+    # artifactory:
+   #initContainers:
+   #joinKey: 081e82356cca93b714bc850102803200e27aee5e794d2c4412ef2f61dd77bc2f
+   #masterKey: 63566635d11e3ec44c927d4697f77493b2be166a6b8fee1388b447c6db6c7ee9
   # joinKeySecretName:
   # masterKeySecretName:
 
@@ -49,7 +49,7 @@ initContainers:
   image:
     registry: releases-docker.jfrog.io
     repository: ubi9/ubi-minimal
-    tag: 9.4.949
+    tag: 9.3.1552
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -110,17 +110,17 @@ serviceAccount:
   ## Explicitly mounts the API credentials for the Service Account
   automountServiceAccountToken: false
 ingress:
-  enabled: true
+  enabled: false
   defaultBackend:
-    enabled: false
+    enabled: true
   # Used to create an Ingress record.
-  hosts: [ucdevops.exlservice.com]
+  hosts: []
   routerPath: /
   artifactoryPath: /artifactory/
   rtfsPath: /artifactory/service/rtfs/
-  className: "nginx"
+  className: ""
   annotations: {}
-  kubernetes.io/ingress.class: nginx
+  # kubernetes.io/ingress.class: nginx
   # nginx.ingress.kubernetes.io/configuration-snippet: |
   #   proxy_pass_header   Server;
   #   proxy_set_header    X-JFrog-Override-Base-Url https://<artifactory-domain>;
@@ -165,9 +165,9 @@ networkpolicy: []
 ## Apply horizontal pod auto scaling on artifactory pods
 ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
 autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 70
 ## You can use a pre-existing secret with keys license_token and iam_role by specifying licenseConfigSecretName
 ## Example : Create a generic secret using `kubectl create secret generic <secret-name> --from-literal=license_token=${TOKEN} --from-literal=iam_role=${ROLE_ARN}`
@@ -228,7 +228,7 @@ router:
     # From Artifactory versions 7.52.x, Wait for Artifactory to complete any open uploads or downloads before terminating
     preStop:
       exec:
-        command: ["sh", "-c", "while [[ $(curl --fail --silent --connect-timeout 2 http://localhost:8081/artifactory/api/v1/system/liveness) =~ OK ]]; do echo Artifactory is still alive; sleep 2; done"]
+        command: ["sh", "-c", "while [[ $(curl --fail --silent --connect-timeout 2 http://localhost:8081/artifactory/api/v1/system/liveness) =~OK ]]; do echo Artifactory is still alive; sleep 2; done"]
         # postStart:
         #   exec:
         #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler"]
@@ -285,10 +285,8 @@ artifactory:
   ## root certificates added will be copied to $JFROG_HOME/artifactory/var/etc/access/keys/trusted folder.
   circleOfTrustCertificatesSecret:
   # unifiedSecretInstallation flag enables single unified secret holding all the artifactory internal(chart) secrets, It won't be affecting external secrets.
-  ## Note: unifiedSecretInstallation flag is enabled by true by default from chart version 107.79.x, Users can switch to false to continue with the old way of secret creation.
+  ## Note: unifiedSecretInstallation flag is enabled by true by default from chart version 107.79.x, Users can switch to false to continue withthe old wayof secret creation.
   unifiedSecretInstallation: true
-  ## unifiedSecretPrependReleaseName Set this flag to false if unifiedSecret should not be created with <release-name> prepended.
-  unifiedSecretPrependReleaseName: true
   # For HA installation, set this value > 1. This is only supported in Artifactory 7.25.x (appVersions) and above.
   replicaCount: 1
   # minAvailable: 1
@@ -297,7 +295,7 @@ artifactory:
   image:
     registry: releases-docker.jfrog.io
     repository: jfrog/artifactory-pro
-    # tag:
+    #tag: latest
     pullPolicy: IfNotPresent
   labels: {}
   updateStrategy:
@@ -331,7 +329,7 @@ artifactory:
     enabled: false
     # certificateSecretName:
   database:
-    maxOpenConnections: 80
+    maxOpenConnections: 200
   tomcat:
     maintenanceConnector:
       port: 8091
@@ -378,7 +376,7 @@ artifactory:
 
   # Sidecar containers for tailing Artifactory logs
   loggers: []
-  # - access-audit.log
+  #- access-audit.log
   # - access-request.log
   # - access-security-audit.log
   # - access-service.log
@@ -424,7 +422,8 @@ artifactory:
     enabled: true
     timeoutSeconds: 3600
     ## Extra pre-start command in migration Init Container to install JDBC driver for MySql/MariaDb/Oracle
-    # preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-5.1.41.jar https://jcenter.bintray.com/mysql/mysql-connector-java/5.1.41/mysql-connector-java-5.1.41.jar"
+    preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644
+ mysql-connector-java-8.0.30.jar"
   ## Add custom init containers execution before predefined init containers
   customInitContainersBegin: ""
   #  - name: "custom-setup"
@@ -494,7 +493,7 @@ artifactory:
   #        cpu: "100m"
 
   ## Add custom volumes
-  # If .Values.artifactory.unifiedSecretInstallation is true then secret name should be '{{ template "artifactory.unifiedSecretPrependReleaseName" . }}-unified-secret'
+  # If .Values.artifactory.unifiedSecretInstallation is true then secret name should be '{{ template "artifactory.fullname" . }}-unified-secret'
   customVolumes: ""
   #  - name: custom-script
   #    configMap:
@@ -550,16 +549,16 @@ artifactory:
   ## Artifactory requires a unique master key.
   ## You can generate one with the command: "openssl rand -hex 32"
   ## An initial one is auto generated by Artifactory on first startup.
-  # masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+  #masterKey: artifactory-secret
   ## Alternatively, you can use a pre-existing secret with a key called master-key by specifying masterKeySecretName
-  # masterKeySecretName:
+  #masterKeySecretName: artifactory-secret
 
   ## Join Key to connect other services to Artifactory
   ## IMPORTANT: Setting this value overrides the existing joinKey
   ## IMPORTANT: You should NOT use the example joinKey for a production deployment!
-  # joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+  #joinKey: artifactory-secret
   ## Alternatively, you can use a pre-existing secret with a key called join-key by specifying joinKeySecretName
-  # joinKeySecretName:
+  #joinKeySecretName: artifactory-secret
 
   ## Registration Token for JFConnect
   # jfConnectToken:
@@ -567,7 +566,7 @@ artifactory:
   # jfConnectTokenSecretName:
 
   # Add custom secrets - secret per file
-  # If .Values.artifactory.unifiedSecretInstallation is true then secret name should be '{{ template "artifactory.unifiedSecretPrependReleaseName" . }}-unified-secret' common to all secrets
+  # If .Values.artifactory.unifiedSecretInstallation is true then secret name should be '{{ template "artifactory.fullname" . }}-unified-secret' common to all secrets
   customSecrets:
   #  - name: custom-secret
   #    key: custom-secret.yaml
@@ -591,7 +590,8 @@ artifactory:
     secret:
     dataKey:
   ## Extra pre-start command to install JDBC driver for MySql/MariaDb/Oracle
-  # preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-5.1.41.jar https://jcenter.bintray.com/mysql/mysql-connector-java/5.1.41/mysql-connector-java-5.1.41.jar"
+  preStartCommand: "mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-8.0.30.jar; chmod 644
+ mysql-connector-java-8.0.30.jar"
 
   # Add lifecycle hooks for artifactory container
   lifecycle: {}
@@ -768,7 +768,7 @@ artifactory:
     ## azure-blob-storage-direct
     ## azure-blob-storage-v2-direct
     ## cluster-azure-blob-storage
-    type: file-system
+    type: aws-s3-v3
     ## Use binarystoreXml to provide a custom binarystore.xml
     ## This is intentionally commented and below previous content of binarystoreXml is moved under files/binarystore.xml
     ## binarystoreXml:
@@ -823,7 +823,7 @@ artifactory:
       enableSignedUrlRedirect: false
     ## For artifactory.persistence.type aws-s3-v3, s3-storage-v3-direct, cluster-s3-storage-v3, s3-storage-v3-archive
     awsS3V3:
-      testConnection: false
+      testConnection: true
       identity:
       credential:
       region:
@@ -989,7 +989,7 @@ metadata:
   enabled: true
   internalPort: 8086
   database:
-    maxOpenConnections: 80
+    maxOpenConnections: 200
   ## Extra environment variables that can be used to tune metadata to your needs.
   ## Uncomment and set value as needed
   extraEnvironmentVariables:
@@ -1262,9 +1262,9 @@ observability:
       timeoutSeconds: {{ .Values.probes.timeoutSeconds }}
 # MISSION_CONTROL
 mc:
-  enabled: false
+  enabled: true
   database:
-    maxOpenConnections: 10
+    maxOpenConnections: 200
   idgenerator:
     maxOpenConnections: 2
   tomcat:
@@ -1611,7 +1611,7 @@ nginx:
         command:
           - sh
           - -c
-          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port" . }}/
+          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port". }}/
       initialDelaySeconds: {{ if semverCompare "<v1.20.0-0" .Capabilities.KubeVersion.Version }}180{{ else }}0{{ end }}
       periodSeconds: 10
       timeoutSeconds: {{ .Values.probes.timeoutSeconds }}
@@ -1624,7 +1624,7 @@ nginx:
         command:
           - sh
           - -c
-          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port" . }}/router/api/v1/system/readiness
+          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port". }}/router/api/v1/system/readiness
       initialDelaySeconds: {{ if semverCompare "<v1.20.0-0" .Capabilities.KubeVersion.Version }}90{{ else }}0{{ end }}
       periodSeconds: 10
       timeoutSeconds: {{ .Values.probes.timeoutSeconds }}
@@ -1637,7 +1637,7 @@ nginx:
         command:
           - sh
           - -c
-          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port" . }}/router/api/v1/system/readiness
+          - curl -s -k --fail --max-time {{ .Values.probes.timeoutSeconds }} {{ include "nginx.scheme" . }}://localhost:{{ include "nginx.port". }}/router/api/v1/system/readiness
       initialDelaySeconds: 3
       failureThreshold: 90
       periodSeconds: 5
@@ -1682,24 +1682,17 @@ waitForDatabase: true
 ## Configuration values for the PostgreSQL dependency sub-chart
 ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
 postgresql:
-  enabled: true
+  enabled: false
   image:
     registry: releases-docker.jfrog.io
     repository: bitnami/postgresql
     tag: 15.6.0-debian-11-r16
-  postgresqlUsername: jfrogdbadmin
-  #postgresqlPassword:
-  extraEnv:
-    - name: POSTGRESQL_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: jfrogdb-secrets
-          key: POSTGRESQL_PASSWORD
-  postgresqlDatabase: jfrogdb
+  postgresqlUsername: artifactory
+  postgresqlPassword: "ucdevops123"
+  postgresqlDatabase: artifactory
   postgresqlExtendedConf:
     listenAddresses: "*"
     maxConnections: "1500"
-    databaseUpgradeReady: true
   persistence:
     enabled: true
     size: 200Gi
@@ -1729,15 +1722,15 @@ postgresql:
 ## specify custom database details here or leave empty and Artifactory will use embedded derby
 database:
   ## To run Artifactory with any database other than PostgreSQL allowNonPostgresql set to true.
-  allowNonPostgresql: false
-  type:
-  driver:
+  allowNonPostgresql: true
+  type: mysql
+  driver: com.mysql.jdbc.Driver
   ## If you set the url, leave host and port empty
-  url:
+  url: "jdbc:mysql://mysql-db-jfrog.cnyjdnwewotw.us-east-1.rds.amazonaws.com:3306/jfrogdb"
   ## If you would like this chart to create the secret containing the db
   ## password, use these values
-  user:
-  password:
+  user: "admin"
+  password: "ZUh3)39#7+-laxSf_m*wPhj~zz+J"
   ## If you have existing Kubernetes secrets containing db credentials, use
   ## these values
   secrets: {}
