@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Source variables from the main script
-source ./secret-manager.sh
+RDS_SECRET_NAME="rds!db-e6531643-8234-401b-8144-64263f2e1809"
+RDS_INSTANCE_IDENTIFIER="database-1"
+NEW_SECRET_NAME="jfrog-secret"
+NEW_SECRET_DESCRIPTION="Credentials and endpoint for JFrog DB"
 
 # Retrieve username and password from the source secret
 source_secret=$(aws secretsmanager get-secret-value --secret-id "$source_secret_name" 2>&1)
