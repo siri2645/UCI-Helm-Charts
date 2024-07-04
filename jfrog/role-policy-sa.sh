@@ -1,7 +1,16 @@
 #!/bin/bash
 
 # Source variables from the main script
-source ./secret-manager.sh
+
+SERVICE_ACCOUNT_NAMESPACE="jfrog"  #Application namespace
+ACCOUNT_NUMBER="334133138415"
+CLUSTER_NAME="eks-cluster"
+ROLE_NAME="JfrogdbSecretsPermissionRole"
+OIDC_AUDIENCE="sts.amazonaws.com"
+POLICY_NAME="jfrogdbsecretspolicy"
+POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"    
+SERVICE_ACCOUNT_NAME="jfrog-sa"
+REGION="us-west-2"
 
 create_iam_resources() {
   # Check if the role already exists
