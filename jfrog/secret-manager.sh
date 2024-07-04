@@ -8,40 +8,9 @@ NAMESPACE="external-secrets"     #external-secrets namespace
 RELEASE_NAME="external-secrets"
 HELM_REPO_URL="https://charts.external-secrets.io"
 
-
-SERVICE_ACCOUNT_NAMESPACE="jfrog"  #Application namespace
-ACCOUNT_NUMBER="334133138415"
-CLUSTER_NAME="eks-cluster"
-ROLE_NAME="JfrogdbSecretsPermissionRole"
-OIDC_AUDIENCE="sts.amazonaws.com"
-POLICY_NAME="jfrogdbsecretspolicy"
-POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"    
-SERVICE_ACCOUNT_NAME="jfrog-sa"
-REGION="us-west-2"
-RDS_SECRET_NAME="rds!db-e6531643-8234-401b-8144-64263f2e1809"
-RDS_INSTANCE_IDENTIFIER="database-1"
-NEW_SECRET_NAME="jfrog-secret"
-NEW_SECRET_DESCRIPTION="Credentials and endpoint for JFrog DB"
-
-# Run the role-policy-sa.sh script
-echo "Executing role-policy-sa.sh..."
 sh role-policy-sa.sh
-
-# Check if the previous script was successful
-if [ $? -ne 0 ]; then
-    echo "role-policy-sa.sh failed. Exiting."
-    exit 1
-fi
-
-# Run the jfrog-secrets-update.sh script
-echo "Executing jfrog-secrets-update.sh..."
 sh jfrog-secrets-update.sh
 
-# Check if the previous script was successful
-if [ $? -ne 0 ]; then
-    echo "jfrog-secrets-update.sh failed. Exiting."
-    exit 1
-fi
 
 # Check if the Helm repository for external-secrets exists
 HELM_REPO_EXIST=$(helm repo list | grep external-secrets)
