@@ -1,67 +1,62 @@
 #!/bin/bash
 
-# Define all the variables for the scripts here
-# You can also define the path to the scripts if they are in different directories
-
-# Variables
-NAMESPACE="external-secrets"     #external-secrets namespace
-RELEASE_NAME="external-secrets"
-HELM_REPO_URL="https://charts.external-secrets.io"
-
+echo "Before executing this script need to create IAM Identity Provider for our cluster and make it has thump printed"
+echo " "
+echo "Now executing another script to create role and so on..."
 sh role-policy-sa.sh
 sh jfrog-secrets-update.sh
 
+# Variables
+NAMESPACE="external-secrets"
+RELEASE_NAME="external-secrets"
 
-# Check if the Helm repository for external-secrets exists
 HELM_REPO_EXIST=$(helm repo list | grep external-secrets)
-
-if [ -z "$HELM_REPO_EXIST" ]; then
+  if [ -z "$HELM_REPO_EXIST" ]; then
     echo "Adding Helm repository for external-secrets..."
-    helm repo add external-secrets $HELM_REPO_URL
+    helm repo add external-secrets https://charts.external-secrets.io
     if [ $? -ne 0 ]; then
-        echo "Failed to add Helm repository."
-        exit 1
+      echo "Failed to add Helm repository."
+      exit 1
     fi
-else
+  else
     echo "Helm repository for external-secrets is already added."
-fi
+  fi
 
-# Update the Helm repository
-helm repo update
-if [ $? -ne 0 ]; then
+    # Update the Helm repository
+  helm repo update
+  if [ $? -ne 0 ]; then
     echo "Failed to update Helm repository."
     exit 1
-fi
+  fi
+
+  # Install external-secrets with some required CRDS
+  echo "Install external-secrets with some required CRDs" 
 
 # Check if the namespace exists
 echo "Checking if the namespace $NAMESPACE exists..."
 kubectl get namespace $NAMESPACE > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
-    echo "Namespace $NAMESPACE already exists. Skipping installation."
+  echo "Namespace $NAMESPACE already exists. Skipping installation."
+  echo "Deploying external-secret.yaml and secret-store.yaml"
+  kubectl create -f jfrogdb-externalsecrets.yaml
+  kubectl create -f jfrogdb-secretstore.yaml
+  exit 0
 else
-    echo "Namespace $NAMESPACE does not exist. Proceeding with installation..."
-
-    # Install external-secrets using Helm
-    echo "Installing external-secrets with some required CRDs..."
-    helm install $RELEASE_NAME external-secrets/external-secrets --namespace $NAMESPACE --create-namespace --set installCRDs=true
-
-    if [ $? -ne 0 ]; then
-        echo "Failed to install external-secrets."
-        exit 1
-    fi
+  echo "Namespace $NAMESPACE does not exist. Proceeding with installation..."
 fi
 
-# Deploy external-secrets.yaml and secret-store.yaml
-echo "Deploying external-secrets.yaml and secret-store.yaml"
-kubectl create -f jfrogdb-externalsecrets.yaml
-kubectl create -f jfrogdb-secretstore.yaml
+# Install external-secrets using Helm
+helm install $RELEASE_NAME external-secrets/external-secrets --namespace $NAMESPACE --create-namespace --set installCRDs=true
 
 if [ $? -eq 0 ]; then
-    echo "Successfully deployed external-secrets and secret-store."
+  echo "external-secrets successfully installed."
+  echo "Deploying external-secrets.yaml and secret-store.yaml"
+  kubectl create -f jfrogdb-externalsecrets.yaml
+  kubectl create -f jfrogdb-secretstore.yaml
 else
-    echo "Failed to deploy external-secrets and secret-store."
-    exit 1
+  echo "Failed to install external-secrets and manifest files."
+  exit 1
 fi
 
-echo "All tasks completed successfully."
+

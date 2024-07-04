@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # Source variables from the main script
-RDS_SECRET_NAME="rds!db-e6531643-8234-401b-8144-64263f2e1809"
+source_secret_name="rds!db-e6531643-8234-401b-8144-64263f2e1809"
 RDS_INSTANCE_IDENTIFIER="database-1"
-NEW_SECRET_NAME="jfrog-secret"
+NEW_SECRET_NAME="jfrog-secret3"
 NEW_SECRET_DESCRIPTION="Credentials and endpoint for JFrog DB"
+DATABASE="jfrogdb"
+PORT="5432"
 
 # Retrieve username and password from the source secret
 source_secret=$(aws secretsmanager get-secret-value --secret-id "$source_secret_name" 2>&1)
@@ -24,7 +26,7 @@ rds_endpoint=$(aws rds describe-db-instances --db-instance-identifier $RDS_INSTA
 new_secret_string=$(jq -n \
     --arg username "$username" \
     --arg password "$password" \
-    --arg endpoint "$rds_endpoint" \
+    --arg endpoint "jdbc:postgresql://$rds_endpoint:$PORT/$DATABASE" \
     '{username: $username, password: $password, endpoint: $endpoint}')
 
 aws secretsmanager create-secret \
