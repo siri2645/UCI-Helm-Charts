@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-ACCOUNT_NUMBER="471112801649"
+ACCOUNT_NUMBER="334133138415"
 CLUSTER_NAME="eks-cluster"
 ROLE_NAME="JfrogdbSecretsPermissionRole"
 OIDC_AUDIENCE="sts.amazonaws.com"
@@ -10,7 +10,7 @@ POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
 SERVICE_ACCOUNT_NAMESPACE="jfrog"
 SERVICE_ACCOUNT_NAME="jfrog-sa"
 REGION="us-west-2"
-RDS_SECRET_NAME="rds!db-64d0f348-5422-41bc-a7e2-eb15fd4c736e"
+RDS_SECRET_NAME="rds!db-e6531643-8234-401b-8144-64263f2e1809"
 
 create_iam_resources() {
   # Check if the role already exists
