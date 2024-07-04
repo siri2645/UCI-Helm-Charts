@@ -1,16 +1,7 @@
 #!/bin/bash
 
-# Variables
-ACCOUNT_NUMBER="334133138415"
-CLUSTER_NAME="eks-cluster"
-ROLE_NAME="JfrogdbSecretsPermissionRole"
-OIDC_AUDIENCE="sts.amazonaws.com"
-POLICY_NAME="jfrogdbsecretspolicy"
-POLICY_DESCRIPTION="Policy to provide access to secret manager and eks clusters"
-SERVICE_ACCOUNT_NAMESPACE="jfrog"
-SERVICE_ACCOUNT_NAME="jfrog-sa"
-REGION="us-west-2"
-RDS_SECRET_NAME="rds!db-e6531643-8234-401b-8144-64263f2e1809"
+# Source variables from the main script
+source ./secret-manager.sh
 
 create_iam_resources() {
   # Check if the role already exists
@@ -110,8 +101,6 @@ EOF
     # Create the IAM policy
     aws iam create-policy --policy-name $POLICY_NAME --policy-document "$POLICY_DOCUMENT" --description "$POLICY_DESCRIPTION"
     
-    
-
     if [ $? -ne 0 ]; then
       echo "Error: Unable to create IAM policy."
     fi
