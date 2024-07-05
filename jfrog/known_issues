@@ -2,7 +2,7 @@ issues:
 
 1. Master key checksum mismatch: https://jfrog.com/help/r/how-to-recover-the-master-key/7.x-master-key-reset-steps
 
-    steps: Don't delete any tables once connecition is established, exit only this command under spcific databases 
+    steps: Don't delete any tables once connection is established, exit only this command under spcific databases 
         DELETE FROM access_configs WHERE data LIKE 'JE%';
         DELETE FROM access_users_custom_data WHERE PROP_VALUE LIKE 'JE%';
         DELETE FROM access_master_key_status WHERE status = 'on';
