@@ -3,7 +3,7 @@
 # Source variables from the main script
 source_secret_name="rds!db-e6531643-8234-401b-8144-64263f2e1809"
 RDS_INSTANCE_IDENTIFIER="database-1"
-NEW_SECRET_NAME="jfrog-secret3"
+NEW_SECRET_NAME="jfrog-secret4"
 NEW_SECRET_DESCRIPTION="Credentials and endpoint for JFrog DB"
 DATABASE="jfrogdb"
 PORT="5432"
