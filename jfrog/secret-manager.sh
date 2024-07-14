@@ -4,6 +4,7 @@ echo "Before executing this script need to create IAM Identity Provider for our 
 echo " "
 echo "Now executing another script to create role and so on..."
 sh role-policy-sa.sh
+sh jfrog-secrets-update.sh
 
 # Variables
 NAMESPACE="external-secrets"
@@ -57,3 +58,5 @@ else
   echo "Failed to install external-secrets and manifest files."
   exit 1
 fi
+
+

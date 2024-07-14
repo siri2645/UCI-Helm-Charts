@@ -1,0 +1,20 @@
+issues: 
+
+1. Master key checksum mismatch: https://jfrog.com/help/r/how-to-recover-the-master-key/7.x-master-key-reset-steps
+
+    steps: Don't delete any tables once connection is established, exit only this command under spcific databases 
+        DELETE FROM access_configs WHERE data LIKE 'JE%';
+        DELETE FROM access_users_custom_data WHERE PROP_VALUE LIKE 'JE%';
+        DELETE FROM access_master_key_status WHERE status = 'on';
+        DELETE FROM configs WHERE data LIKE 'JE%';
+        DELETE FROM master_key_status WHERE status = 'on';
+
+   if in values.yaml 
+    mc:
+      enabled: true
+    execute thse commands also in database
+         DELETE FROM mc_cluster_info WHERE property_key='master_key_hash';
+         DELETE FROM mc_token WHERE token_value LIKE 'JE%';
+
+####################################################
+
