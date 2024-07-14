@@ -1,0 +1,9 @@
+FROM bitnami/postgresql:latest
+USER root
+ENV POSTGRESQL_PASSWORD=roZes@123
+ENV PGDATA=/bitnami/postgresql
+RUN apt-get update && apt-get install -y postgresql-client
+#RUN "bitnami ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/bitnami
+USER 1001
+ENTRYPOINT ["/opt/bitnami/scripts/postgresql/entrypoint.sh"]
+CMD ["/opt/bitnami/scripts/postgresql/run.sh"]
