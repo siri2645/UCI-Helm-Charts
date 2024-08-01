@@ -48,8 +48,8 @@ Path based routing: For sonarqube path based routing Update these values at the 
                             line no-201: startupProbe: sonarWebContext: /sonarqube/
 Disable the ingress line no 102: Disable the default ingress and deploy the ingress yaml file because of path based routing.
 
-Update the RDS section line no 438: Here we configure the SonarQube with AWS RDS 
-Disable the Defualt Database line no 454: here we disable the default database 
+Database line no 438: Here we configure the SonarQube with AWS RDS 
+Postgresql line no 454: here we disable the default database 
 
 
 
