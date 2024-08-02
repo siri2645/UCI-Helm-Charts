@@ -84,7 +84,7 @@ Disable webhook line no 235: Disabled the webhook because it generates dynamic a
 Disable certController line no 398: false
 
 Role-policy.sh line no (4-13): we need to update the required details.
-External-secrets.yaml line no (16 and 20): here we change the aws rds key value.
+External-secrets.yaml line no (16 and 20): here we change the aws rds key value(remoteRef key).
                                     Line no 4: if you want to change the external secrets file name also 
                                     Line no 5: here we can mention the namespace name
                                     Line no 9: if you want to change the secretstore file name like secretstore to sonar-secretstore
