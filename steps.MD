@@ -1,4 +1,4 @@
-# Changes in Values file for Ingress, Jenkins, Sonrqube and Jfrog
+# Changes in Values file for Ingress, Jenkins, Sonrqube, Jfrog and External Secrets
 
 First Create the EKS Cluster 
 
