@@ -57,7 +57,7 @@ Deploying the Sonarqube Helm chart using the following steps:
 
 ```
 1. Path-Based Routing:
-   - Extra Environment Variables: Add the following at the end of the   file for SonarQube path-based routing:
+   - Extra Environment Variables: Add the following at the end of the file for SonarQube path-based routing:
         extraEnv:
            sonar.web.context: /SonarQube
      
