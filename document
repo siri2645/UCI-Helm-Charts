@@ -69,5 +69,33 @@ Database line no 1727: Configure the jfrog with AWS RDS.
 Postgresql line no 1684: Disable the Default Database  
 
 
+External secrets:
+
+To retrieve AWS RDS credentials from AWS Secrets Manager and make them available in the EKS cluster, we deploy the External Secrets Helm chart along with the External Secrets YAML file and SecretStore YAML file.
+We use an automation script that includes role-policy.sh, secret-manager.sh, external-secrets.yaml, and secret-store.yaml to accomplish this. 
+This script handles the deployment and configuration needed to fetch the credentials from AWS Secrets Manager to EKS cluster.
+
+We have default values file for external secrets helm chart
+
+Changes:
+
+Disable webhook line no 235: Disabled the webhook because it generates dynamic admission control on API requests, preventing deletion or updates related to external secrets. The webhook locks the current configuration.
+
+Disable certController line no 398: false
+
+Role-policy.sh line no (4-13): we need to update the required details.
+External-secrets.yaml line no (16 and 20): here we change the aws rds key value.
+                                    Line no 4: if you want to change the external secrets file name also 
+                                    Line no 5: here we can mention the namespace name
+                                    Line no 9: if you want to change the secretstore file name like secretstore to sonar-secretstore
+                                    Line no 12: here we can mention the target file name. the rds credentials are stored in this file. 
+Secretstore.yaml line no 4: here which name we are mentioned in external secrets (line no 9) that name and this name should be same. 
+                            Line no 5: here we need to mention the namespace name.
+                            Line no 10: here we can mention the region name.
+                            Line no 14: here we can mention the service account name
+Jfrog-secrets-update.sh line no (4 to 9): here we can mention the required details. (this file we configured for jfrog only).
+
+
+
 
 
