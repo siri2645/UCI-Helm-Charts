@@ -95,3 +95,37 @@ Deploying the Jfrog Helm chart using the following steps:
 
 6. PostgreSQL Configuration (line 1684): Disable the default database.
 ```
+## External Secrets
+
+
+
+To make AWS RDS credentials accessible in the EKS cluster, we deploy the External Secrets Helm chart along with the external-secrets.yaml and SecretStore.yaml files. An automation script, which includes role-policy.sh, secret-manager.sh, external-secrets.yaml, and secret-store.yaml, is used to achieve this. This script manages the deployment and configuration required to retrieve the credentials from AWS Secrets Manager and make them available in the EKS cluster.
+
+#### Default external-secrets values file changes
+```
+1. Disable webhook line no 235: Disabled the webhook because it generates dynamic admission control on API requests, preventing deletion or updates related to external secrets. The webhook locks the current configuration.
+
+2. Role-policy.sh, line no (4-13): we need to update the required details.
+
+3. External-secrets.yaml, line no (16 and 20): here we change the aws rds key value(remoteRef key).
+      a. Line no 4: if you want to change the external secrets file name also 
+      
+      b.Line no 5: here we can mention the namespace name
+                                                         
+      c. Line no 9: if you want to change the secretstore file name like secretstore to sonar-secretstore
+      
+      d. Line no 12: here we can mention the target file name. the rds credentials are stored in this file. 
+
+4. Secretstore.yaml, line no 4: here which name we are mentioned in external secrets (line no 9) that name and this name should be same. 
+      a. Line no 5: here we need to mention the namespace name.
+      
+      b. Line no 10: here we can mention the region name.
+      c. 
+      Line no 14: here we can mention the service account name
+
+5. Jfrog-secrets-update.sh line no (4 to 9): here we can mention the required details. (this file we configured for jfrog only).
+```
+
+
+
+
