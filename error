@@ -1,0 +1,7 @@
+ sudo -i
+root@ip-172-31-71-175:~# kubectl logs -f jenkins-0 -n jenkins
+Defaulted container "jenkins" out of: jenkins, config-reload, config-reload-init (init), init (init)
+Error from server (InternalError): Internal error occurred: Authorization error (user=kube-apiserver-kubelet-client, verb=get, resource=nodes, subresource=proxy)
+root@ip-172-31-71-175:~#
+
+failed to \"StartContainer\" for \"router\" with CrashLoopBackOff: \"back-off 5m0s restarting failed container=router pod=artifactory-0_jfrog(bacf5a48-6d4b-4558-890a-2ac328327008)\", failed to \"StartContainer\" for \"artifactory\" with CreateContainerConfigError: \"failed to sync secret cache: timed out waiting for the condition\"]" pod="jfrog/artifactory-0" podUID="bacf5a48-6d4b-4558-890a-2ac328327008"
