@@ -768,7 +768,7 @@ artifactory:
     ## azure-blob-storage-direct
     ## azure-blob-storage-v2-direct
     ## cluster-azure-blob-storage
-    type: file-system
+    type: aws-s3-v3
     ## Use binarystoreXml to provide a custom binarystore.xml
     ## This is intentionally commented and below previous content of binarystoreXml is moved under files/binarystore.xml
     ## binarystoreXml:
@@ -823,15 +823,15 @@ artifactory:
       enableSignedUrlRedirect: false
     ## For artifactory.persistence.type aws-s3-v3, s3-storage-v3-direct, cluster-s3-storage-v3, s3-storage-v3-archive
     awsS3V3:
-      testConnection: false
-      identity:
-      credential:
-      region:
-      bucketName: artifactory-aws
+      testConnection: true
+      identity: 
+      credential: 
+      region: us-west-2
+      bucketName: jfrog-artifactory12
       path: artifactory/filestore
-      endpoint:
+      endpoint: s3.amazonaws.com
       port:
-      useHttp:
+      useHttp: false
       maxConnections: 50
       connectionTimeout:
       socketTimeout:
